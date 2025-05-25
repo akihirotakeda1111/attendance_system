@@ -1,0 +1,128 @@
+/* メニューバー start */
+.sidebar {
+  width: 200px;
+  background: #282c34;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+
+.sidebar a {
+  color: #61dafb;
+  text-decoration: none;
+  margin: 10px 20px;
+  font-size: 18px;
+}
+
+.sidebar a:hover {
+  text-decoration: underline;
+}
+/* メニューバー end */
+
+/* 共通レイアウト start */
+.app-container {
+  display: flex;
+  height: 100vh;
+  height: auto;
+}
+
+.main-content {
+  flex: 1;
+  padding: 40px;
+  background: #f5f5f5;
+}
+
+h2::before {
+  content: "□";
+  color: #4CAF50; /* 色はお好みで */
+  font-size: 1em;
+  margin-right: 0.3em;
+}
+
+input:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+/* 共通レイアウト end */
+
+/* テーブルレイアウト start */
+.table-layout {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  margin-bottom: 30px;
+  table-layout: fixed;
+}
+
+.table-layout th,
+.table-layout td {
+  border: 1px solid #ccc;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.table-layout th {
+  background: #f0f0f0;
+  font-weight: bold;
+}
+
+.table-layout tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.none-border,
+.none-border th,
+.none-border td {
+  border: none;
+  background: #f5f5f5;
+}
+/* テーブルレイアウト end */
+
+/* ボタンレイアウト start */
+.register-button {
+  padding: 10px 24px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  background: #4CAF50;
+  color: #fff;
+  cursor: pointer;
+}
+
+.register-button:hover {
+  background: #388e3c;
+}
+
+.register-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.register-button-disabled {
+  padding: 10px 0;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  background: #ccc;
+  color: #fff;
+  cursor: not-allowed;
+  display: inline-block;
+  text-align: center;
+}
+/* ボタンレイアウト end */
+
+/* 汎用レイアウト start */
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.fs-50 {
+  font-size: 50px;
+}
+/* 汎用レイアウト end */
