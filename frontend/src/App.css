@@ -110,6 +110,23 @@ input:disabled {
   display: inline-block;
   text-align: center;
 }
+
+.search-button {
+  padding: 10px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  background: #1976d2;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin: 8px 0;
+  box-shadow: 0 2px 4px rgba(25, 118, 210, 0.08);
+}
+
+.search-button:hover {
+  background: #1565c0;
+}
 /* ボタンレイアウト end */
 
 /* 汎用レイアウト start */
@@ -124,5 +141,9 @@ input:disabled {
 
 .fs-50 {
   font-size: 50px;
+}
+
+.pr-20 {
+  padding-right: 20px;
 }
 /* 汎用レイアウト end */

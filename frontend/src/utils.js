@@ -1,3 +1,5 @@
+import { getWeek } from "date-fns";
+
 // ISO形式を"yyyy-mm-dd hh:mm:ss"に変換する
 export function toYMDHMS(dateTimeStr) {
     let retVal = ""
@@ -17,4 +19,17 @@ export function toYMDHMS(dateTimeStr) {
 // 半角数字か判定する
 export function isHalfWidthNumber(str) {
     return /^[0-9]+$/.test(str);
+}
+
+// 月の週番号を取得する
+export function getWeeksInMonth(year, month) {
+  const weeks = new Set();
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+
+  for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+    const week = getWeek(d, { weekStartsOn: 1 }); // 月曜始まり
+    weeks.add(`${d.getFullYear()}${String(week).padStart(2, "0")}`);
+  }
+  return Array.from(weeks);
 }
