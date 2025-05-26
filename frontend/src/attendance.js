@@ -135,7 +135,7 @@ const Attendance = () => {
               )}
             </td>
             <td>
-              {!latestAttendance ? (
+              {!latestAttendance || latestBreaktime ? (
                 <span className="register-button-disabled width-100">
                   退勤
                 </span>
@@ -158,7 +158,7 @@ const Attendance = () => {
               <div>
                 予定時間:
                 <input
-                  disabled={!latestAttendance || latestAttendance && latestBreaktime}
+                  disabled={!latestAttendance || (latestAttendance && latestBreaktime)}
                   type="text"
                   placeholder="半角数字で入力"
                   value={minute}
@@ -186,7 +186,7 @@ const Attendance = () => {
           )}
           <tr>
             <td>
-              {!latestAttendance || latestAttendance && latestBreaktime ? (
+              {!latestAttendance || (latestAttendance && latestBreaktime) ? (
                 <span className="register-button-disabled width-100">
                   離席・休憩
                 </span>
@@ -199,7 +199,7 @@ const Attendance = () => {
               )}
             </td>
             <td>
-              {!latestAttendance || latestAttendance && !latestBreaktime ? (
+              {!latestAttendance || (latestAttendance && !latestBreaktime) ? (
                 <span className="register-button-disabled width-100">
                   再開
                 </span>
