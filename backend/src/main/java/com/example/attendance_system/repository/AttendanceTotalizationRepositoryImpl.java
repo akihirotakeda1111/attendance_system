@@ -5,6 +5,8 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.EntityManager;
 import com.example.attendance_system.dto.AttendanceTotalizationResponse;
 import com.example.attendance_system.dto.AttendanceTotalizationRequest;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -23,9 +25,13 @@ public class AttendanceTotalizationRepositoryImpl implements AttendanceTotalizat
             param_from = request.getYear() + "-01-01";
             param_to = request.getYear() + "-12-31";
         } else {
+            LocalDate fromDate = LocalDate.parse(
+                request.getYear() + "-" + String.format("%02d", Integer.valueOf(request.getMonth())) + "-01");
+            LocalDate toDate = fromDate.plusMonths(1).minusDays(1);
+            
             date_group = "CAST(yearweek(date, 1) AS CHAR)";
-            param_from = request.getYear() + "-" + request.getMonth() + "-01";
-            param_to = request.getYear() + "-" + request.getMonth() + "-31";
+            param_from = fromDate.toString();
+            param_to = toDate.toString();
         }
 
         String sql = 
