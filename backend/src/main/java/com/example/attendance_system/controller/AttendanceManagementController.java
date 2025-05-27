@@ -22,10 +22,10 @@ public class AttendanceManagementController {
             @RequestParam("year") String year,
             @RequestParam("month") String month,
             @RequestParam("userId") String userId) {
-        List<Attendance> sttendance = attendanceService.getAttendanceList(year, month, userId);
-        if (sttendance == null) {
+        List<Attendance> attendance = attendanceService.getAttendanceList(year, month, userId);
+        if (attendance == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(sttendance);
+        return ResponseEntity.ok(attendance);
     }
 }
