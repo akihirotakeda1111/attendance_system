@@ -19,6 +19,9 @@ public interface BreaktimeRepository extends JpaRepository<Breaktime, BreaktimeI
     // 指定された日付の休憩情報を取得
     List<Breaktime> findByDate(Date date);
 
+    // 指定されたユーザー、日付の休憩情報を取得
+    List<Breaktime> findByUserIdAndDateBetween(String userId, LocalDate startDate, LocalDate endDate);
+
     // 指定されたユーザーの最新の休憩情報を取得
     Optional<Breaktime> findTopByUserIdOrderByDateDesc(String userId);
 
@@ -27,7 +30,4 @@ public interface BreaktimeRepository extends JpaRepository<Breaktime, BreaktimeI
 
     // 指定ユーザーで終了時刻がnullの最新レコードを取得
     Optional<Breaktime> findTopByUserIdAndDateAndEndTimeIsNullOrderByNumberDesc(String userId, LocalDate date);
-
-    // 指定された主キーの出勤情報を取得
-    //List<Attendance> findByPrimaryKey(AttendanceId attendanceId);
 }

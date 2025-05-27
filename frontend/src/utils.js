@@ -2,7 +2,7 @@ import { getWeek } from "date-fns";
 
 // ISO形式を"yyyy-mm-dd hh:mm:ss"に変換する
 export function toYMDHMS(dateTimeStr) {
-    let retVal = ""
+    let retVal = dateTimeStr;
     if (dateTimeStr && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateTimeStr)) {
         const date = new Date(dateTimeStr);
         const yyyy = date.getFullYear();
@@ -32,4 +32,16 @@ export function getWeeksInMonth(year, month) {
     weeks.add(`${d.getFullYear()}${String(week).padStart(2, "0")}`);
   }
   return Array.from(weeks);
+}
+
+// 月のに日付を取得する
+export function getDaysInMonth(year, month) {
+  const days = new Set();
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+
+  for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+    days.add(String(d.getDate()).padStart(2, "0"));
+  }
+  return Array.from(days);
 }

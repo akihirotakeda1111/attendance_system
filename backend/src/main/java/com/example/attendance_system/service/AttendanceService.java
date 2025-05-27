@@ -8,6 +8,7 @@ import com.example.attendance_system.model.Attendance;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class AttendanceService {
@@ -38,5 +39,12 @@ public class AttendanceService {
                 .findTopByUserIdAndEndTimeIsNullOrderByDateDesc(userId)
                 .orElse(null);
         return latestAttendance;
+    }
+
+    public List<Attendance> getAttendanceList(String year, String month, String userId) {
+        LocalDate startDate = LocalDate.parse(
+                year + "-" + String.format("%02d", Integer.valueOf(month)) + "-01");
+        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        return attendanceRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
     }
 }

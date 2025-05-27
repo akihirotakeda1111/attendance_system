@@ -9,6 +9,7 @@ import com.example.attendance_system.model.Breaktime;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class BreaktimeService {
@@ -44,5 +45,12 @@ public class BreaktimeService {
                 .findTopByUserIdAndDateAndEndTimeIsNullOrderByNumberDesc(userId, date)
                 .orElse(null);
         return latestBreaktime;
+    }
+
+    public List<Breaktime> getBreaktimeList(String year, String month, String userId) {
+        LocalDate startDate = LocalDate.parse(
+                year + "-" + String.format("%02d", Integer.valueOf(month)) + "-01");
+        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        return breaktimeRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
     }
 }

@@ -1,0 +1,173 @@
+import React, { useState, useEffect, useCallback } from "react";
+import { YearDropdown, MonthDropdown } from "../components/Dropdown";
+import CommonDialog from "../components/CommonDialog";
+import Message from "../components/Message";
+import { getDaysInMonth, toYMDHMS } from "../utils";
+
+const DataCell = ({ breaktimeData }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  return (
+    <>
+      <a 
+        href="#" 
+        onClick={(e) => {
+          e.preventDefault();
+          if (breaktimeData.length > 0) setDialogOpen(true);
+        }}
+        style={{
+          cursor: breaktimeData.length > 0 ? "pointer" : "default",
+          textDecoration: breaktimeData.length > 0 ? "underline" : "none",
+          color: breaktimeData.length > 0 ? "blue" : "gray"
+        }}
+      >
+        {breaktimeData.length > 0 ? `詳細を見る(${breaktimeData.length}件)` : "-"}
+      </a>
+      
+      <CommonDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title="休憩時間"
+        content=
+          {
+            <ul>
+              {breaktimeData.map((b, index) => (
+                <li key={index}>{toYMDHMS(b.startTime)} - {b.endTime ? toYMDHMS(b.endTime) : "未終了"}</li>
+              ))}
+            </ul>
+          }
+      />
+    </>
+  );
+};
+
+const AttendanceManagement = () => {
+  const now = new Date();
+  const currentYear = String(now.getFullYear());
+  const currentMonth = String(now.getMonth() + 1);
+
+  const [userId, setUserId] = useState("admin");
+  const [year, setYear] = useState(currentYear);
+  const [month, setMonth] = useState(currentMonth);
+  const [users, setUsers] = useState();
+  const [workingData, setWorkingData] = useState();
+
+  const searchSubmit = async () => {
+    const params = new URLSearchParams({
+      year: year,
+      month: month,
+      userId: userId,
+    });
+    const responseAttendance = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance?${params.toString()}`
+    );
+    if (responseAttendance.status === 404) {
+      setWorkingData(null);
+      return;
+    }
+    const attendanceData = await responseAttendance.json();
+
+    const responseBreaktime = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime?${params.toString()}`
+    );
+    if (responseBreaktime.status === 404) {
+      return;
+    }
+    const breaktimeData = await responseBreaktime.json();
+
+    const days = getDaysInMonth(year, month);
+    const data = days.map(item => {
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(item).padStart(2, "0")}`;
+      const attendance = attendanceData.filter(b => b.date === dateStr);
+      const breaktimes = breaktimeData.filter(b => b.date === dateStr);
+      return {
+        date: dateStr,
+        startTime: attendance.length > 0 ? attendance[0].startTime : "-",
+        endTime: attendance.length > 0 ? attendance[0].endTime : "-",
+        breaktimeData: breaktimes.length > 0 ? breaktimes : []
+      };
+    });
+    setWorkingData(data);
+  };
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/users`)
+      .then(res => res.json())
+      .then(data => setUsers(data));
+  }, []);
+
+  useEffect(() => {
+    searchSubmit();
+  }, []);
+
+  return (
+    <div>
+      <h2>勤務管理</h2>
+      <table className="table-layout none-border">
+        <tbody>
+          <tr>
+            <td>
+              <span className="pr-20">
+                <YearDropdown value={year}
+                  onChange={e => setYear(e.target.value)} />
+                年
+                <MonthDropdown value={month}
+                  onChange={e => setMonth(e.target.value)} />
+                月
+              </span>
+              <span>
+                ID(氏名):
+                <select value={userId} onChange={e => setUserId(e.target.value)}>
+                  {users && users.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.id} ({user.name})
+                    </option>
+                  ))}
+                </select>
+              </span>
+            </td>
+            <td>
+              <button className="search-button"
+                onClick={searchSubmit}>検索</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <table className="table-layout">
+        <tbody>
+          <tr>
+            <th className="center">日付</th>
+            <th className="center">出勤</th>
+            <th className="center">退勤</th>
+            <th className="center">離席・休憩</th>
+            <th className="center">登録・修正</th>
+          </tr>
+          {Array.isArray(workingData) && workingData.length > 0 ? (
+            workingData.map((data, index) => (
+              <tr key={index}>
+                <td className="center">{data.date}</td>
+                <td className="center">{toYMDHMS(data.startTime)}</td>
+                <td className="center">{toYMDHMS(data.endTime)}</td>
+                <td className="center"><DataCell breaktimeData={data.breaktimeData} /></td>
+                <td className="center">
+                  <button className="register-button"
+                    onClick={() => alert(`登録・修正機能は未実装です: ${data.date}`)}>
+                    {data.startTime === "-" ? "登録" : "修正"}
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colspan="4">
+                <Message type="noData" />
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default AttendanceManagement;

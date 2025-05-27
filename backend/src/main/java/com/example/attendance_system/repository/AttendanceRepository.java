@@ -3,6 +3,7 @@ package com.example.attendance_system.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 import com.example.attendance_system.model.Attendance;
@@ -17,12 +18,13 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Attendan
     // 指定された日付の出勤情報を取得
     List<Attendance> findByDate(Date date);
 
+    // 指定されたユーザー、日付の出勤情報を取得
+    List<Attendance> findByUserIdAndDateBetween(String userId, LocalDate startDate, LocalDate endDate);
+
     // 指定されたユーザーの最新の出勤情報を取得
     Optional<Attendance> findTopByUserIdOrderByDateDesc(String userId);
 
     // 指定ユーザーで退勤時刻がnullの最新レコードを取得
     Optional<Attendance> findTopByUserIdAndEndTimeIsNullOrderByDateDesc(String userId);
 
-    // 指定された主キーの出勤情報を取得
-    //List<Attendance> findByPrimaryKey(AttendanceId attendanceId);
 }
