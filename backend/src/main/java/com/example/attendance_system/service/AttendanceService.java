@@ -47,7 +47,7 @@ public class AttendanceService {
         return attendanceRepository.findById(key).orElse(null);
     }
 
-    public Attendance latestStartDate(String userId) {
+    public Attendance getLatestAttendance(String userId) {
         Attendance latestAttendance = attendanceRepository
                 .findTopByUserIdAndEndTimeIsNullOrderByDateDesc(userId)
                 .orElse(null);

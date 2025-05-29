@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.attendance_system.service.AttendanceService;
 import com.example.attendance_system.dto.AttendanceRequest;
@@ -33,16 +34,11 @@ public class AttendanceController {
     }
 
     @GetMapping("/latest")
-    public ResponseEntity<Attendance> getAttendanceStartDate(@RequestParam("userId") String userId) {
-        Attendance latestAttendance = attendanceService.latestStartDate(userId);
+    public ResponseEntity<Attendance> getLatestAttendance(@RequestParam("userId") String userId) {
+        Attendance latestAttendance = attendanceService.getLatestAttendance(userId);
         if (latestAttendance == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(latestAttendance);
     }
-
-    /* @GetMapping("/{userId}")
-    public ResponseEntity<AttendanceRecord> getAttendance(@PathVariable Long userId) {
-        return ResponseEntity.ok(attendanceService.getAttendance(userId));
-    } */
 }

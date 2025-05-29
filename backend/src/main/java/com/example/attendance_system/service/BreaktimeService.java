@@ -71,7 +71,7 @@ public class BreaktimeService {
         }
     }
 
-    public Breaktime latestStartDate(String userId, LocalDate date) {
+    public Breaktime getLatestBreaktime(String userId, LocalDate date) {
         Breaktime latestBreaktime = breaktimeRepository
                 .findTopByUserIdAndDateAndEndTimeIsNullOrderByNumberDesc(userId, date)
                 .orElse(null);

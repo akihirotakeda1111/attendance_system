@@ -36,10 +36,10 @@ public class BreaktimeController {
     }
 
     @GetMapping("/latest")
-    public ResponseEntity<Breaktime> getAttendanceStartDate(
+    public ResponseEntity<Breaktime> getLatestBreaktime(
             @RequestParam("userId") String userId
             , @RequestParam("date") LocalDate date) {
-        Breaktime latestBreaktime = breaktimeService.latestStartDate(userId, date);
+        Breaktime latestBreaktime = breaktimeService.getLatestBreaktime(userId, date);
         if (latestBreaktime == null) {
             return ResponseEntity.notFound().build();
         }
