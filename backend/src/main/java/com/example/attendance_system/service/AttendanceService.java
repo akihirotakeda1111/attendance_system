@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.attendance_system.repository.AttendanceRepository;
 import com.example.attendance_system.dto.AttendanceRequest;
 import com.example.attendance_system.model.Attendance;
+import com.example.attendance_system.model.AttendanceId;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,10 +17,18 @@ public class AttendanceService {
     @Autowired
     private AttendanceRepository attendanceRepository;
 
+    public void saveAttendance(AttendanceRequest request) {
+        LocalDate date = LocalDate.parse(request.getDate());
+        LocalDateTime startTime = LocalDateTime.parse(request.getStartTime());
+        LocalDateTime endTime = LocalDateTime.parse(request.getEndTime());
+        Attendance attendance = new Attendance(date, request.getUserId(), startTime, endTime);
+        attendanceRepository.save(attendance);
+    }
+
     public void saveStartAttendance(AttendanceRequest request) {
         LocalDate ymd = LocalDate.now();
         LocalDateTime ymdhms = LocalDateTime.now();
-        Attendance attendance = new Attendance(ymd, request.getUserId(), ymdhms);
+        Attendance attendance = new Attendance(ymd, request.getUserId(), ymdhms, null);
         attendanceRepository.save(attendance);
     }
 
@@ -32,6 +41,10 @@ public class AttendanceService {
             latestAttendance.setEndTime(ymdhms);
             attendanceRepository.save(latestAttendance);
         }
+    }
+
+    public Attendance getAttendance(AttendanceId key) {
+        return attendanceRepository.findById(key).orElse(null);
     }
 
     public Attendance latestStartDate(String userId) {

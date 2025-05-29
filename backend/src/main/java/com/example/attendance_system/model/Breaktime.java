@@ -32,11 +32,13 @@ public class Breaktime {
 
     public Breaktime() {}
 
-    public Breaktime(LocalDate date, String userId, int number, LocalDateTime startTime, LocalDateTime expectedEndTime) {
+    public Breaktime(LocalDate date, String userId, int number,
+            LocalDateTime startTime, LocalDateTime endTime, LocalDateTime expectedEndTime) {
         this.date = date;
         this.userId = userId;
         this.number = number;
         this.startTime = startTime;
+        this.endTime = endTime;
         this.expectedEndTime = expectedEndTime;
     }
 }

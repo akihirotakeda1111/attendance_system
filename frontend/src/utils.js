@@ -1,5 +1,10 @@
 import { getWeek } from "date-fns";
 
+// 日付を登録形式の文字列に変換する
+export function toRegistDateStr(year, month, day, hour, minute) {
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+}
+
 // ISO形式を"yyyy-mm-dd hh:mm:ss"に変換する
 export function toYMDHMS(dateTimeStr) {
     let retVal = dateTimeStr;

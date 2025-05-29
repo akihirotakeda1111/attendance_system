@@ -27,9 +27,10 @@ public class Attendance {
 
     public Attendance() {}
 
-    public Attendance(LocalDate date, String userId, LocalDateTime startTime) {
+    public Attendance(LocalDate date, String userId, LocalDateTime startTime, LocalDateTime endTime) {
         this.date = date;
         this.userId = userId;
         this.startTime = startTime;
+        this.endTime = endTime;
     }
 }

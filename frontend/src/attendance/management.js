@@ -3,6 +3,7 @@ import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
 import { getDaysInMonth, toYMDHMS } from "../utils";
+import AttendanceRegister from "./register";
 
 const DataCell = ({ breaktimeData }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -37,6 +38,25 @@ const DataCell = ({ breaktimeData }) => {
             </ul>
           }
       />
+    </>
+  );
+};
+
+const RegistButton = ({ data }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  return (
+    <>
+      <button className="register-button"
+        onClick={() => setDialogOpen(true)}>
+        {data.startTime === "-" ? "登録" : "修正"}
+      </button>
+
+      <CommonDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={`勤務登録(${data.date})`}
+        content={<AttendanceRegister date={data.date}/>} />
     </>
   );
 };
@@ -149,12 +169,7 @@ const AttendanceManagement = () => {
                 <td className="center">{toYMDHMS(data.startTime)}</td>
                 <td className="center">{toYMDHMS(data.endTime)}</td>
                 <td className="center"><DataCell breaktimeData={data.breaktimeData} /></td>
-                <td className="center">
-                  <button className="register-button"
-                    onClick={() => alert(`登録・修正機能は未実装です: ${data.date}`)}>
-                    {data.startTime === "-" ? "登録" : "修正"}
-                  </button>
-                </td>
+                <td className="center"><RegistButton data={data} /></td>
               </tr>
             ))
           ) : (

@@ -1,4 +1,5 @@
 import React from "react";
+import { getDaysInMonth } from "../utils";
 
 // 年のドロップダウン
 export const YearDropdown = ({ value, onChange, start = 1950, end, ...props }) => {
@@ -25,6 +26,48 @@ export const MonthDropdown = ({ value, onChange, ...props }) => (
       return (
         <option key={month} value={month}>
           {month}
+        </option>
+      );
+    })}
+  </select>
+);
+
+// 日のドロップダウン
+export const DayDropdown = ({ value, year, month, onChange, ...props }) => (
+  <select value={value} onChange={onChange} {...props}>
+    {Array.from({ length: getDaysInMonth(year, month).length }, (_, i) => {
+      const day = String(i + 1);
+      return (
+        <option key={day} value={day}>
+          {day}
+        </option>
+      );
+    })}
+  </select>
+);
+
+// 時のドロップダウン
+export const HourDropdown = ({ value, onChange, ...props }) => (
+  <select value={value} onChange={onChange} {...props}>
+    {Array.from({ length: 24 }, (_, i) => {
+      const hour = String(i);
+      return (
+        <option key={hour} value={hour}>
+          {hour}
+        </option>
+      );
+    })}
+  </select>
+);
+
+// 分のドロップダウン
+export const MinuteDropdown = ({ value, onChange, ...props }) => (
+  <select value={value} onChange={onChange} {...props}>
+    {Array.from({ length: 60 }, (_, i) => {
+      const minute = String(i);
+      return (
+        <option key={minute} value={minute}>
+          {minute}
         </option>
       );
     })}

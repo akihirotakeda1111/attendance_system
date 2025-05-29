@@ -5,4 +5,10 @@ import lombok.Data;
 @Data
 public class AttendanceRequest {
     private String userId;
+
+    private String date;
+
+    private String startTime;
+    
+    private String endTime;
 }

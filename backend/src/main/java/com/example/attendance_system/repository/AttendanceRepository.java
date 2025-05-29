@@ -18,6 +18,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Attendan
     // 指定された日付の出勤情報を取得
     List<Attendance> findByDate(Date date);
 
+    // keyを指定して出勤情報を取得
+    Optional<Attendance> findById(AttendanceId id);
+
     // 指定されたユーザー、日付の出勤情報を取得
     List<Attendance> findByUserIdAndDateBetween(String userId, LocalDate startDate, LocalDate endDate);
 
