@@ -5,8 +5,21 @@ const Attendance = () => {
   const [userId, setUserId] = useState("admin");
   const [minute, setMiute] = useState("");
   const [now, setNow] = useState(new Date());
+  const [todayAttendance, setTodayAttendance] = useState(null);
   const [latestAttendance, setLatestAttendance] = useState(null);
   const [latestBreaktime, setLatestBreaktime] = useState(null);
+
+  const fetchTodayAttendance = useCallback(async () => {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}/attendance/today?userId=${userId}`
+    );
+    if (response.status === 404) {
+      setTodayAttendance(null);
+      return;
+    }
+    const data = await response.json();
+    setTodayAttendance(data);
+  }, [userId]);
 
   const fetchLatestAttendance = useCallback(async () => {
     const response = await fetch(
@@ -47,6 +60,7 @@ const Attendance = () => {
     }
     const message = await response.text();
     alert(message);
+    fetchTodayAttendance();
     fetchLatestAttendance();
   };
 
@@ -58,6 +72,7 @@ const Attendance = () => {
     });
     const message = await response.text();
     alert(message);
+    fetchTodayAttendance();
     fetchLatestAttendance();
   };
 
@@ -94,6 +109,10 @@ const Attendance = () => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+  
+  useEffect(() => {
+    fetchTodayAttendance();
+  }, [fetchTodayAttendance]);
 
   useEffect(() => {
     fetchLatestAttendance();
@@ -117,12 +136,14 @@ const Attendance = () => {
         <tbody>
           <tr>
             <td>
-              <div>出勤時刻:{!latestAttendance ? "未出勤" : toYMDHMS(latestAttendance.startTime)}</div>
+              <div>出勤時刻:{!latestAttendance ?
+                    !todayAttendance ? "未出勤" : "退勤済み"
+                  : toYMDHMS(latestAttendance.startTime)}</div>
             </td>
           </tr>
           <tr>
             <td>
-              {latestAttendance ? (
+              {latestAttendance || todayAttendance ? (
                 <span className="register-button-disabled width-100">
                   出勤
                 </span>

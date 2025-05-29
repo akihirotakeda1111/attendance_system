@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.attendance_system.service.AttendanceService;
 import com.example.attendance_system.dto.AttendanceRequest;
 import com.example.attendance_system.model.Attendance;
+import com.example.attendance_system.model.AttendanceId;
 
 @RestController
 @RequestMapping("/api/attendance")
@@ -40,5 +43,16 @@ public class AttendanceController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(latestAttendance);
+    }
+
+    @GetMapping("/today")
+    public ResponseEntity<Attendance> getTodayAttendance(@RequestParam("userId") String userId) {
+        LocalDate nowDate = LocalDate.now();
+        Attendance attendance = attendanceService.getAttendance(
+            new AttendanceId(nowDate, userId));
+        if (attendance == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(attendance);
     }
 }
