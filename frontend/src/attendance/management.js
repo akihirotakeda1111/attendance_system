@@ -2,11 +2,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
-import { getDaysInMonth, toYMDHMS } from "../utils";
+import { getDaysInMonth, toYMDHMS, getDiffHours } from "../utils";
 import AttendanceRegister from "./register";
 
 const DataCell = ({ breaktimeData }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const breaktimeHours = breaktimeData && breaktimeData.length > 0 ?
+    breaktimeData.reduce((sum, item) => sum + getDiffHours(item.startTime, item.endTime), 0) : 0;
 
   return (
     <>
@@ -22,7 +24,7 @@ const DataCell = ({ breaktimeData }) => {
           color: breaktimeData.length > 0 ? "blue" : "gray"
         }}
       >
-        {breaktimeData.length > 0 ? `詳細を見る(${breaktimeData.length}件)` : "-"}
+        {breaktimeData.length > 0 ? `${breaktimeHours.toFixed(2)}h(${breaktimeData.length}件)` : "-"}
       </a>
       
       <CommonDialog
@@ -70,7 +72,29 @@ const AttendanceManagement = () => {
   const [year, setYear] = useState(currentYear);
   const [month, setMonth] = useState(currentMonth);
   const [users, setUsers] = useState();
-  const [workingData, setWorkingData] = useState();
+  const [workingData, setWorkingData] = useState(getWorkingData(null, null, null));
+
+  function getWorkingData(attendanceData, breaktimeData, worktimeData) {
+    const days = getDaysInMonth(year, month);
+    const data = days.map(item => {
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(item).padStart(2, "0")}`;
+      let attendance = null;
+      let breaktimes = null;
+      let worktime = null;
+      if (attendanceData) { attendance = attendanceData.filter(b => b.date === dateStr); }
+      if (breaktimeData) { breaktimes = breaktimeData.filter(b => b.date === dateStr); }
+      if (worktimeData) { worktime = worktimeData.filter(b => b.date === dateStr); }
+      
+      return {
+        date: dateStr,
+        startTime: attendance && attendance.length > 0 ? attendance[0].startTime : "-",
+        endTime: attendance && attendance.length > 0 ? attendance[0].endTime : "-",
+        breaktimeData: breaktimes && breaktimes.length > 0 ? breaktimes : [],
+        workHours: worktime && worktime.length > 0 ? worktime[0].hours.toFixed(2) : "-",
+      };
+    });
+    return data;
+  }
 
   const searchSubmit = async () => {
     const params = new URLSearchParams({
@@ -82,7 +106,7 @@ const AttendanceManagement = () => {
       `${process.env.REACT_APP_API_BASE_URL}/manage/attendance?${params.toString()}`
     );
     if (responseAttendance.status === 404) {
-      setWorkingData(null);
+      setWorkingData(getWorkingData(null, null, null));
       return;
     }
     const attendanceData = await responseAttendance.json();
@@ -91,23 +115,27 @@ const AttendanceManagement = () => {
       `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime?${params.toString()}`
     );
     if (responseBreaktime.status === 404) {
+      setWorkingData(getWorkingData(attendanceData, null, null));
       return;
     }
     const breaktimeData = await responseBreaktime.json();
 
-    const days = getDaysInMonth(year, month);
-    const data = days.map(item => {
-      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(item).padStart(2, "0")}`;
-      const attendance = attendanceData.filter(b => b.date === dateStr);
-      const breaktimes = breaktimeData.filter(b => b.date === dateStr);
-      return {
-        date: dateStr,
-        startTime: attendance.length > 0 ? attendance[0].startTime : "-",
-        endTime: attendance.length > 0 ? attendance[0].endTime : "-",
-        breaktimeData: breaktimes.length > 0 ? breaktimes : []
-      };
+    const worktimeParams = new URLSearchParams({
+      monthly: false,
+      weekly: false,
+      year: year,
+      month: month,
+      userId: userId,
     });
-    setWorkingData(data);
+    const worktimeResponse = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${worktimeParams.toString()}`
+    );
+    if (worktimeResponse.status === 404) {
+      setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
+      return;
+    }
+    const workTimeData = await worktimeResponse.json();
+    setWorkingData(getWorkingData(attendanceData, breaktimeData, workTimeData));
   };
 
   useEffect(() => {
@@ -160,6 +188,7 @@ const AttendanceManagement = () => {
             <th className="center">出勤</th>
             <th className="center">退勤</th>
             <th className="center">離席・休憩</th>
+            <th className="center">稼働</th>
             <th className="center">登録・修正</th>
           </tr>
           {Array.isArray(workingData) && workingData.length > 0 ? (
@@ -169,6 +198,7 @@ const AttendanceManagement = () => {
                 <td className="center">{toYMDHMS(data.startTime)}</td>
                 <td className="center">{toYMDHMS(data.endTime)}</td>
                 <td className="center"><DataCell breaktimeData={data.breaktimeData} /></td>
+                <td className="center">{data.workHours}</td>
                 <td className="center"><RegistButton data={data} /></td>
               </tr>
             ))

@@ -21,47 +21,58 @@ public class AttendanceTotalizationRepositoryImpl implements AttendanceTotalizat
         String param_from = "";
         String param_to = "";
         if (request.isMonthly()) {
+            // 勤務集計->月次
             date_group = "date_format(date, '%Y%m')";
             param_from = request.getYear() + "-01-01";
             param_to = request.getYear() + "-12-31";
-        } else {
+        } else if (request.isWeekly()) {
+            // 勤務集計->週次
             LocalDate fromDate = LocalDate.parse(
                 request.getYear() + "-" + String.format("%02d", Integer.valueOf(request.getMonth())) + "-01");
             LocalDate toDate = fromDate.plusMonths(1).minusDays(1);
             
-            date_group = "CAST(yearweek(date, 1) AS CHAR)";
+            date_group = "cast(yearweek(date, 1) as char)";
+            param_from = fromDate.toString();
+            param_to = toDate.toString();
+        } else {
+            // 勤務管理->稼働
+            LocalDate fromDate = LocalDate.parse(
+                request.getYear() + "-" + String.format("%02d", Integer.valueOf(request.getMonth())) + "-01");
+            LocalDate toDate = fromDate.plusMonths(1).minusDays(1);
+            
+            date_group = "cast(date as char)";
             param_from = fromDate.toString();
             param_to = toDate.toString();
         }
 
         String sql = 
-            "select user_id\n"
-            + "    , " + date_group + " date\n"
-            + "    , sum(greatest(attendance_second - breaktime_second, 0)) / 3600 hours\n"
-            + "from (\n"
-            + "    select attendance.date\n"
-            + "        , attendance.user_id\n"
-            + "        , timestampdiff(second, attendance.start_time, ifnull(attendance.end_time, attendance.start_time)) attendance_second\n"
-            + "        , breaktime_sum.breaktime_second\n"
-            + "    from attendance\n"
-            + "    left join (\n"
-            + "        select date\n"
-            + "            , user_id\n"
-            + "            , sum(timestampdiff(second, start_time, end_time)) breaktime_second\n"
-            + "        from breaktime\n"
-            + "        where user_id = :userId\n"
-            + "            and date between :from and :to\n"
-            + "        and end_time is not null\n"
-            + "        group by date, user_id\n"
-            + "    ) breaktime_sum\n"
-            + "    on attendance.date = breaktime_sum.date\n"
-            + "        and attendance.user_id = breaktime_sum.user_id\n"
-            + "    where attendance.user_id = :userId\n"
-            + "        and attendance.date between :from and :to\n"
-            + ") working_time\n"
-            + "group by user_id, " + date_group + "\n"
-            + "order by date";
-        //System.out.println("SQL: " + sql);
+            "select user_id "
+                + ", " + date_group + " date "
+                + ", sum(greatest(attendance_second - breaktime_second, 0)) / 3600 hours "
+            + "from ( "
+                + "select attendance.date "
+                    + ", attendance.user_id "
+                    + ", timestampdiff(second, attendance.start_time, ifnull(attendance.end_time, attendance.start_time)) attendance_second "
+                    + ", ifnull(breaktime_sum.breaktime_second, 0) breaktime_second "
+                + "from attendance "
+                + "left join ( "
+                    + "select date "
+                        + ", user_id "
+                        + ", sum(timestampdiff(second, start_time, end_time)) breaktime_second "
+                    + "from breaktime "
+                    + "where user_id = :userId "
+                    + "and date between :from and :to "
+                    + "and end_time is not null "
+                    + "group by date, user_id "
+                + ") breaktime_sum "
+                + "on attendance.date = breaktime_sum.date "
+                + "and attendance.user_id = breaktime_sum.user_id "
+                + "where attendance.user_id = :userId "
+                + "and attendance.date between :from and :to "
+            + ") working_time "
+            + "group by user_id, " + date_group + " "
+            + "order by date ";
+        
         return em.createNativeQuery(sql, AttendanceTotalizationResponse.class)
                 .setParameter("userId", request.getUserId())
                 .setParameter("from", param_from)

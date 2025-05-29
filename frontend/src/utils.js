@@ -8,7 +8,7 @@ export function toRegistDateStr(year, month, day, hour, minute) {
 // ISO形式を"yyyy-mm-dd hh:mm:ss"に変換する
 export function toYMDHMS(dateTimeStr) {
     let retVal = dateTimeStr;
-    if (dateTimeStr && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateTimeStr)) {
+    if (dateTimeStr && isISOTimeStr(dateTimeStr)) {
         const date = new Date(dateTimeStr);
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -19,6 +19,11 @@ export function toYMDHMS(dateTimeStr) {
         retVal = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
     }
     return retVal;
+}
+
+// ISO形式の日付文字か判定する
+export function isISOTimeStr(dateTimeStr) {
+    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateTimeStr);
 }
 
 // 半角数字か判定する
@@ -39,7 +44,7 @@ export function getWeeksInMonth(year, month) {
   return Array.from(weeks);
 }
 
-// 月のに日付を取得する
+// 月の日付を取得する
 export function getDaysInMonth(year, month) {
   const days = new Set();
   const firstDay = new Date(year, month - 1, 1);
@@ -49,4 +54,16 @@ export function getDaysInMonth(year, month) {
     days.add(String(d.getDate()).padStart(2, "0"));
   }
   return Array.from(days);
+}
+
+// 経過時間を計算する
+export function getDiffHours(dateStr1, dateStr2) {
+  const date1 = isISOTimeStr(dateStr1) ? new Date(dateStr1) : null;
+  const date2 = isISOTimeStr(dateStr2) ? new Date(dateStr2) : null;
+  let retVal = 0;
+  if (date1 instanceof Date && date2 instanceof Date) {
+    const diffMs = date2.getTime() - date1.getTime();
+    retVal = diffMs / (1000 * 60 * 60);
+  }
+  return retVal;
 }
