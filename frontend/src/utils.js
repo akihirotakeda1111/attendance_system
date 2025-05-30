@@ -67,3 +67,34 @@ export function getDiffHours(dateStr1, dateStr2) {
   }
   return retVal;
 }
+
+// 2つの期間が重なっているか判定する
+export function isOverlappingPeriod(start1, end1, start2, end2) {
+  let isOverlappingPeriod = false;
+
+  const startDate1 = isISOTimeStr(start1) ? new Date(start1) : null;
+  const endDate1 = isISOTimeStr(end1) ? new Date(end1) : null;
+  const startDate2 = isISOTimeStr(start2) ? new Date(start2) : null;
+  const endDate2 = isISOTimeStr(end2) ? new Date(end2) : null;
+
+  if (startDate1 && endDate1 && startDate2 && endDate2) {
+    if (startDate1 <= startDate2 && endDate1 >= startDate2
+        && startDate1 <= endDate2 && endDate1 >= endDate2
+    ) {
+      isOverlappingPeriod = true;
+    }
+  }
+  return isOverlappingPeriod;
+}
+
+// 2つの日時の前後関係を判定する
+export function isStartToEnd(dateStr1, dateStr2) {
+  let isStartToEnd = false;
+
+  const date1 = isISOTimeStr(dateStr1) ? new Date(dateStr1) : null;
+  const date2 = isISOTimeStr(dateStr2) ? new Date(dateStr2) : null;
+  if (date1 instanceof Date && date2 instanceof Date) {
+    isStartToEnd = date1 < date2;
+  }
+  return isStartToEnd;
+}

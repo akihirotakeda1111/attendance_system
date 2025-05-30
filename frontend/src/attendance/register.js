@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { YearDropdown, MonthDropdown, DayDropdown, HourDropdown, MinuteDropdown } from "../components/Dropdown";
-import { toRegistDateStr } from "../utils";
+import { toRegistDateStr, isOverlappingPeriod, isStartToEnd } from "../utils";
 import Message from "../components/Message";
 
 const InputBreaktime = ({ breaktimes, setBreaktimes }) => {
@@ -117,6 +117,7 @@ const AttendanceRegister = ({ date }) => {
   const [attendanceStartDate, setAttendanceStartDate] = useState(new DateValue(now));
   const [attendanceEndDate, setAttendanceEndDate] = useState(new DateValue(now));
   const [breaktimes, setBreaktimes] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const getInputData = async () => {
     const params = new URLSearchParams({
@@ -149,8 +150,8 @@ const AttendanceRegister = ({ date }) => {
     setBreaktimes(tmpBreaktimeData);
   };
 
-  const registAttendanceSubmit = async () => {
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
+  const registSubmit = async () => {
+    const attendansResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -160,17 +161,15 @@ const AttendanceRegister = ({ date }) => {
         endTime: attendanceEndDate.toString(),
        }),
     });
-    if (!response.ok) {
-      const errorMessage = await response.text();
+    if (!attendansResponse.ok) {
+      const errorMessage = await attendansResponse.text();
       alert(`Error: ${errorMessage}`);
       return;
     }
-    const message = await response.text();
-    alert(message);
-  };
+    const attendanceMessage = await attendansResponse.text();
+    alert(attendanceMessage);
 
-  const registBreaktimeSubmit = async () => {
-    const request = breaktimes && breaktimes.length > 0 ?
+    const breaktimeRequest = Array.isArray(breaktimes) && breaktimes.length > 0 ?
       breaktimes.map((b, i) => ({
         userId: userId,
         date: date,
@@ -188,23 +187,43 @@ const AttendanceRegister = ({ date }) => {
           expectedEndTime: null
         }
       ];
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/breaktime`, {
+    const breaktimeResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/breaktime`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(request),
+      body: JSON.stringify(breaktimeRequest),
     });
-    if (!response.ok) {
-      const errorMessage = await response.text();
+    if (!breaktimeResponse.ok) {
+      const errorMessage = await breaktimeResponse.text();
       alert(`Error: ${errorMessage}`);
       return;
     }
-    const message = await response.text();
-    alert(message);
+    const breaktimeMessage = await breaktimeResponse.text();
+    alert(breaktimeMessage);
   };
 
   useEffect(() => {
-      getInputData();
-    }, []);
+    getInputData();
+  }, []);
+
+  useEffect(() => {
+    let errorMessages = [];
+
+    if (!isStartToEnd(attendanceStartDate.toString(), attendanceEndDate.toString())) {
+      errorMessages.push(<Message type="isStartToEnd" item1="出勤時刻" item2="退勤時刻" />);
+    }
+
+    if (Array.isArray(breaktimes) && breaktimes.length > 0) {
+      breaktimes.forEach((b, index) => {
+        if (!isOverlappingPeriod(attendanceStartDate.toString(), attendanceEndDate.toString(), b.startDate.toString(), b.endDate.toString())) {
+          errorMessages.push(<Message type="isNotOverlappingPeriod" item1={`離席・休憩時間(${index+1}行目)`} item2="出退勤時間" />);
+        }
+        if (!isStartToEnd(b.startDate.toString(), b.endDate.toString())) {
+          errorMessages.push(<Message type="isStartToEnd" item1={`開始時刻(${index+1}行目)`} item2={`終了時刻(${index+1}行目)`} />);
+        }
+      });
+    }
+    setErrorMessage(errorMessages);
+  }, [breaktimes, attendanceStartDate, attendanceEndDate]);
 
   return (
     <div>
@@ -265,10 +284,6 @@ const AttendanceRegister = ({ date }) => {
           </tr>
         </tbody>
       </table>
-      <button className="register-button width-100"
-        onClick={registAttendanceSubmit}>
-        勤務登録
-      </button>
       <h2>離席・休憩情報</h2>
       <table className="table-layout table-regist none-border">
         <tbody>
@@ -287,10 +302,30 @@ const AttendanceRegister = ({ date }) => {
           </tr>
         </tbody>
       </table>
-      <button className="register-button width-100"
-        onClick={registBreaktimeSubmit}>
-        離席・休憩登録
-      </button>
+      {(Array.isArray(errorMessage) && errorMessage.length > 0) && (
+        <div className="error-box">
+          <ul>
+            {errorMessage.map((message, index) => (
+              message ? (
+                <li key={index}>
+                  {message}
+                </li>
+              ) : null
+            ))}
+          </ul>
+        </div>
+      )}
+      {(Array.isArray(errorMessage) && errorMessage.length > 0) ? (
+        <span className="register-button-disabled width-100">
+          登録
+        </span>
+      ) : (
+        <button
+          className="register-button width-100"
+          onClick={registSubmit}>
+          登録
+        </button>
+      )}
     </div>
   );
 };
