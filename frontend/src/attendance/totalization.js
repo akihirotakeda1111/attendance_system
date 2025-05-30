@@ -32,7 +32,7 @@ const AttendanceTotalization = () => {
       monthly: period === "monthly",
       weekly: period === "weekly",
       year: year,
-      month: month,
+      month: period === "weekly" ? month : null,
       userId: userId,
     });
     const response = await fetch(
@@ -136,9 +136,10 @@ const AttendanceTotalization = () => {
                 <YearDropdown value={year}
                   onChange={e => setYear(e.target.value)} />
                 年
-                <MonthDropdown value={month}
-                  onChange={e => setMonth(e.target.value)} />
-                月
+                {period === "weekly" && (<><MonthDropdown value={month}
+                    onChange={e => setMonth(e.target.value)} />
+                  月</>
+                )}
               </span>
             </td>
           </tr>
