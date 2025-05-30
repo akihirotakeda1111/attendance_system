@@ -48,6 +48,10 @@ input:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
+
+span {
+  white-space: nowrap;
+}
 /* 共通レイアウト end */
 
 /* テーブルレイアウト start */
@@ -80,6 +84,17 @@ input:disabled {
 .none-border td {
   border: none;
   background: #f5f5f5;
+}
+
+.table-regist {
+  table-layout: auto;
+}
+
+.table-regist th {
+  width: max-content;
+  min-width: fit-content;
+  white-space: nowrap;
+
 }
 /* テーブルレイアウト end */
 

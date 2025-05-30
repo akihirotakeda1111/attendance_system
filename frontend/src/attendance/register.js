@@ -199,7 +199,7 @@ const AttendanceRegister = ({ date }) => {
   return (
     <div>
       <h2>出退勤情報</h2>
-      <table className="table-layout none-border">
+      <table className="table-layout table-regist none-border">
         <tbody>
           <tr>
             <th>
@@ -260,7 +260,7 @@ const AttendanceRegister = ({ date }) => {
         勤務登録
       </button>
       <h2>離席・休憩情報</h2>
-      <table className="table-layout none-border">
+      <table className="table-layout table-regist none-border">
         <tbody>
           <InputBreaktime breaktimes={breaktimes} setBreaktimes={setBreaktimes} />
           <tr>
