@@ -44,8 +44,12 @@ const DataCell = ({ breaktimeData }) => {
   );
 };
 
-const RegistButton = ({ data }) => {
+const RegistButton = ({ data, fecthData }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const handleClose = () => {
+    setDialogOpen(false)
+    fecthData();
+  }
 
   return (
     <>
@@ -56,7 +60,7 @@ const RegistButton = ({ data }) => {
 
       <CommonDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => handleClose()}
         title={`勤務登録(${data.date})`}
         content={<AttendanceRegister date={data.date}/>} />
     </>
@@ -199,7 +203,7 @@ const AttendanceManagement = () => {
                 <td className="center">{toYMDHMS(data.endTime)}</td>
                 <td className="center"><DataCell breaktimeData={data.breaktimeData} /></td>
                 <td className="center">{data.workHours}</td>
-                <td className="center"><RegistButton data={data} /></td>
+                <td className="center"><RegistButton data={data} fecthData={searchSubmit} /></td>
               </tr>
             ))
           ) : (
