@@ -170,14 +170,24 @@ const AttendanceRegister = ({ date }) => {
   };
 
   const registBreaktimeSubmit = async () => {
-    const request = breaktimes.map((b, i) => ({
-      userId: userId,
-      date: date,
-      number: i+1,
-      startTime: b.startDate.toString(),
-      endTime: b.endDate.toString(),
-      expectedEndTime: null
-    }));
+    const request = breaktimes && breaktimes.length > 0 ?
+      breaktimes.map((b, i) => ({
+        userId: userId,
+        date: date,
+        number: i+1,
+        startTime: b.startDate.toString(),
+        endTime: b.endDate.toString(),
+        expectedEndTime: null
+      })) : [
+        {
+          userId: userId,
+          date: date,
+          number: 0,
+          startTime: null,
+          endTime: null,
+          expectedEndTime: null
+        }
+      ];
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/breaktime`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

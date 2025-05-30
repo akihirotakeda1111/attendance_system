@@ -29,7 +29,9 @@ public class BreaktimeService {
             deleteBreaktimes(userId, date);
         });
         requests.forEach( request -> {
-            saveBreaktime(request);
+            if (request.getNumber() != 0 && !request.getStartTime().isEmpty() && !request.getEndTime().isEmpty()) {
+                saveBreaktime(request);
+            }
         });
     }
 
