@@ -15,6 +15,7 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// 勤務集計コンポーネント
 const AttendanceTotalization = () => {
   const now = new Date();
   const currentYear = String(now.getFullYear());
@@ -27,6 +28,7 @@ const AttendanceTotalization = () => {
   const [users, setUsers] = useState();
   const [workingData, setWorkingData] = useState();
 
+  // 検索イベント
   const searchSubmit = async () => {
     const params = new URLSearchParams({
       monthly: period === "monthly",
@@ -78,6 +80,7 @@ const AttendanceTotalization = () => {
     setWorkingData(tmpData);
   };
 
+  // グラフデータの設定
   const barData = {
     labels: Array.isArray(workingData)
       ? workingData.map((item) => item.date)
@@ -93,12 +96,14 @@ const AttendanceTotalization = () => {
     ],
   };
 
+  // ユーザードロップダウンの作成
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_BASE_URL}/users`)
       .then(res => res.json())
       .then(data => setUsers(data));
   }, []);
 
+  // 初期検索の実行
   useEffect(() => {
     searchSubmit();
   }, []);

@@ -5,6 +5,7 @@ import Message from "../components/Message";
 import { getDaysInMonth, toYMDHMS, getDiffHours } from "../utils";
 import AttendanceRegister from "./register";
 
+// 休憩情報のセルコンポーネント
 const DataCell = ({ breaktimeData }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const breaktimeHours = breaktimeData && breaktimeData.length > 0 ?
@@ -44,6 +45,7 @@ const DataCell = ({ breaktimeData }) => {
   );
 };
 
+// 修正・登録ボタンコンポーネント
 const RegistButton = ({ data, fecthData }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleClose = () => {
@@ -67,6 +69,7 @@ const RegistButton = ({ data, fecthData }) => {
   );
 };
 
+// 勤務管理コンポーネント
 const AttendanceManagement = () => {
   const now = new Date();
   const currentYear = String(now.getFullYear());
@@ -78,6 +81,7 @@ const AttendanceManagement = () => {
   const [users, setUsers] = useState();
   const [workingData, setWorkingData] = useState(getWorkingData(null, null, null));
 
+  // 勤務データの取得関数
   function getWorkingData(attendanceData, breaktimeData, worktimeData) {
     const days = getDaysInMonth(year, month);
     const data = days.map(item => {
@@ -100,6 +104,7 @@ const AttendanceManagement = () => {
     return data;
   }
 
+  // 検索イベント
   const searchSubmit = async () => {
     const params = new URLSearchParams({
       year: year,
@@ -142,12 +147,14 @@ const AttendanceManagement = () => {
     setWorkingData(getWorkingData(attendanceData, breaktimeData, workTimeData));
   };
 
+  // ユーザードロップダウンの作成
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_BASE_URL}/users`)
       .then(res => res.json())
       .then(data => setUsers(data));
   }, []);
 
+  // 初期検索の実行
   useEffect(() => {
     searchSubmit();
   }, []);

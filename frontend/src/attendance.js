@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { toYMDHMS, isHalfWidthNumber } from "./utils";
 
+// 出退勤登録コンポーネント
 const Attendance = () => {
   const [userId, setUserId] = useState("admin");
   const [minute, setMiute] = useState("");
@@ -9,6 +10,7 @@ const Attendance = () => {
   const [latestAttendance, setLatestAttendance] = useState(null);
   const [latestBreaktime, setLatestBreaktime] = useState(null);
 
+  // 当日の出勤情報取得イベント
   const fetchTodayAttendance = useCallback(async () => {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/attendance/today?userId=${userId}`
@@ -21,6 +23,7 @@ const Attendance = () => {
     setTodayAttendance(data);
   }, [userId]);
 
+  // 最新の出勤情報取得イベント
   const fetchLatestAttendance = useCallback(async () => {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/attendance/latest?userId=${userId}`
@@ -33,6 +36,7 @@ const Attendance = () => {
     setLatestAttendance(data);
   }, [userId]);
 
+  // 最新の休憩情報取得イベント
   const fetchLatestBreaktime = useCallback(async () => {
     if (!latestAttendance) return;
 
@@ -47,6 +51,7 @@ const Attendance = () => {
     setLatestBreaktime(data);
   }, [userId, latestAttendance]);
 
+  // 出勤時刻登録イベント
   const attendanceStartSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
       method: "POST",
@@ -64,6 +69,7 @@ const Attendance = () => {
     fetchLatestAttendance();
   };
 
+  // 退勤時刻登録イベント
   const attendanceEndSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
       method: "PUT",
@@ -76,6 +82,7 @@ const Attendance = () => {
     fetchLatestAttendance();
   };
 
+  // 休憩開始時刻登録イベント
   const breaktimeStartSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
       method: "POST",
@@ -91,6 +98,7 @@ const Attendance = () => {
     fetchLatestBreaktime();
   };
 
+  // 休憩終了時刻登録イベント
   const breaktimeEndSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
       method: "PUT",
@@ -105,19 +113,23 @@ const Attendance = () => {
     fetchLatestBreaktime();
   };
 
+  // 現在日時の更新
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
   
+  // 当日の出勤情報を取得
   useEffect(() => {
     fetchTodayAttendance();
   }, [fetchTodayAttendance]);
 
+  // 最新の出勤情報を取得
   useEffect(() => {
     fetchLatestAttendance();
   }, [fetchLatestAttendance]);
 
+  // 最新の休憩情報を取得
   useEffect(() => {
     fetchLatestBreaktime();
   }, [fetchLatestBreaktime]);
