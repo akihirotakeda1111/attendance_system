@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { YearDropdown, MonthDropdown, DayDropdown, HourDropdown, MinuteDropdown } from "../components/Dropdown";
-import { toRegistDateStr, isOverlappingPeriod, isStartToEnd } from "../utils";
+import { toRegistDateStr, isOverlappingPeriod, isPartOverlappingPeriod, isStartToEnd } from "../utils";
 import Message from "../components/Message";
 
+// 休憩情報の入力コンポーネント
 const InputBreaktime = ({ breaktimes, setBreaktimes }) => {
   const setStartDate = (index, updatedDate) => {
     setBreaktimes(prev =>
@@ -92,6 +93,7 @@ const InputBreaktime = ({ breaktimes, setBreaktimes }) => {
   );
 };
 
+// 勤務登録コンポーネント
 const AttendanceRegister = ({ date }) => {
   class DateValue {
     constructor(date) {
@@ -119,6 +121,7 @@ const AttendanceRegister = ({ date }) => {
   const [breaktimes, setBreaktimes] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // 入力項目の既存データ取得イベント
   const getInputData = async () => {
     const params = new URLSearchParams({
       date: date,
@@ -150,6 +153,7 @@ const AttendanceRegister = ({ date }) => {
     setBreaktimes(tmpBreaktimeData);
   };
 
+  // 登録イベント
   const registSubmit = async () => {
     const attendansResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
       method: "POST",
@@ -201,24 +205,41 @@ const AttendanceRegister = ({ date }) => {
     alert(breaktimeMessage);
   };
 
+  // 初期データ取得
   useEffect(() => {
     getInputData();
   }, []);
 
+  // 入力チェック
   useEffect(() => {
+    // 前の入力エラーが解消されるまで、次の入力チェックは行わない
     let errorMessages = [];
 
+    let isAttendanceValid = false;
     if (!isStartToEnd(attendanceStartDate.toString(), attendanceEndDate.toString())) {
       errorMessages.push(<Message type="isStartToEnd" item1="出勤時刻" item2="退勤時刻" />);
+      isAttendanceValid = true;
     }
 
-    if (Array.isArray(breaktimes) && breaktimes.length > 0) {
+    if (!isAttendanceValid && Array.isArray(breaktimes) && breaktimes.length > 0) {
+      let isBreaktimeValid = false;
       breaktimes.forEach((b, index) => {
-        if (!isOverlappingPeriod(attendanceStartDate.toString(), attendanceEndDate.toString(), b.startDate.toString(), b.endDate.toString())) {
-          errorMessages.push(<Message type="isNotOverlappingPeriod" item1={`離席・休憩時間(${index+1}行目)`} item2="出退勤時間" />);
-        }
         if (!isStartToEnd(b.startDate.toString(), b.endDate.toString())) {
           errorMessages.push(<Message type="isStartToEnd" item1={`開始時刻(${index+1}行目)`} item2={`終了時刻(${index+1}行目)`} />);
+          isBreaktimeValid = true;
+        }
+        
+        if (!isBreaktimeValid) {
+          if (!isOverlappingPeriod(attendanceStartDate.toString(), attendanceEndDate.toString(), b.startDate.toString(), b.endDate.toString())) {
+            errorMessages.push(<Message type="isNotOverlappingPeriod" item1={`離席・休憩時間(${index+1}行目)`} item2="出退勤時間" />);
+            isBreaktimeValid = true;
+          }
+          for (const [index2, b2] of breaktimes.entries()) {
+            if ((index !== index2) && isPartOverlappingPeriod(b.startDate.toString(), b.endDate.toString(), b2.startDate.toString(), b2.endDate.toString())) {
+              errorMessages.push(<Message type="isOverlappingPeriod" item1={`離席・休憩時間(${index+1}行目)`} item2={`離席・休憩時間(${index2+1}行目)`} />);
+              break;
+            }
+          }
         }
       });
     }
