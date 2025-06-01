@@ -15,7 +15,7 @@ const Attendance = () => {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/attendance/today?userId=${userId}`
     );
-    if (response.status === 404) {
+    if (response.status === 204) {
       setTodayAttendance(null);
       return;
     }
@@ -28,7 +28,7 @@ const Attendance = () => {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/attendance/latest?userId=${userId}`
     );
-    if (response.status === 404) {
+    if (response.status === 204) {
       setLatestAttendance(null);
       return;
     }
@@ -43,7 +43,7 @@ const Attendance = () => {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/breaktime/latest?userId=${userId}&date=${latestAttendance.date}`
     );
-    if (response.status === 404) {
+    if (response.status === 204) {
       setLatestBreaktime(null);
       return;
     }

@@ -40,7 +40,7 @@ const AttendanceTotalization = () => {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${params.toString()}`
     );
-    if (response.status === 404) {
+    if (response.status === 204) {
       setWorkingData(null);
       return;
     }

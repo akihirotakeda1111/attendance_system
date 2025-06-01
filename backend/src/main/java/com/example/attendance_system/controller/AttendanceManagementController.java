@@ -9,13 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import com.example.attendance_system.service.AttendanceService;
 import com.example.attendance_system.dto.AttendanceRequest;
 import com.example.attendance_system.model.Attendance;
-import com.example.attendance_system.model.AttendanceId;
 
 @RestController
 @RequestMapping("/api/manage/attendance")
@@ -31,13 +29,13 @@ public class AttendanceManagementController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Attendance>> getAttendance(
+    public ResponseEntity<List<Attendance>> getAttendanceList(
             @RequestParam("year") String year,
             @RequestParam("month") String month,
             @RequestParam("userId") String userId) {
         List<Attendance> attendance = attendanceService.getAttendanceList(year, month, userId);
-        if (attendance == null) {
-            return ResponseEntity.notFound().build();
+        if (attendance == null || attendance.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(attendance);
     }
@@ -46,11 +44,9 @@ public class AttendanceManagementController {
     public ResponseEntity<Attendance> getAttendance(
             @RequestParam("date") String date,
             @RequestParam("userId") String userId) {
-        LocalDate parsedDate = LocalDate.parse(date);
-        Attendance attendance = attendanceService.getAttendance(
-            new AttendanceId(parsedDate, userId));
+        Attendance attendance = attendanceService.getAttendance(date, userId);
         if (attendance == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(attendance);
     }

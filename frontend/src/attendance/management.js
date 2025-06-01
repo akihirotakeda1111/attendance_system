@@ -114,7 +114,7 @@ const AttendanceManagement = () => {
     const responseAttendance = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/manage/attendance?${params.toString()}`
     );
-    if (responseAttendance.status === 404) {
+    if (responseAttendance.status === 204) {
       setWorkingData(getWorkingData(null, null, null));
       return;
     }
@@ -123,7 +123,7 @@ const AttendanceManagement = () => {
     const responseBreaktime = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime?${params.toString()}`
     );
-    if (responseBreaktime.status === 404) {
+    if (responseBreaktime.status === 204) {
       setWorkingData(getWorkingData(attendanceData, null, null));
       return;
     }
@@ -139,7 +139,7 @@ const AttendanceManagement = () => {
     const worktimeResponse = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${worktimeParams.toString()}`
     );
-    if (worktimeResponse.status === 404) {
+    if (worktimeResponse.status === 204) {
       setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
       return;
     }

@@ -130,7 +130,7 @@ const AttendanceRegister = ({ date }) => {
     const responseAttendance = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/manage/attendance/date?${params.toString()}`
     );
-    if (responseAttendance.status === 404) {
+    if (responseAttendance.status === 204) {
       return;
     }
     const attendanceData = await responseAttendance.json();
@@ -140,7 +140,7 @@ const AttendanceRegister = ({ date }) => {
     const responseBreaktime = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime/date?${params.toString()}`
     );
-    if (responseBreaktime.status === 404) {
+    if (responseBreaktime.status === 204) {
       setBreaktimes([]);
       return;
     }

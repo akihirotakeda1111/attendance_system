@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import com.example.attendance_system.service.BreaktimeService;
@@ -30,25 +29,24 @@ public class BreaktimeManagementController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Breaktime>> getBreaktimes(
+    public ResponseEntity<List<Breaktime>> getBreaktimesYearMonth(
             @RequestParam("year") String year,
             @RequestParam("month") String month,
             @RequestParam("userId") String userId) {
         List<Breaktime> breaktime = breaktimeService.getBreaktimeList(year, month, userId);
         if (breaktime == null || breaktime.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(breaktime);
     }
 
     @GetMapping("/date")
-    public ResponseEntity<List<Breaktime>> getBreaktimes(
+    public ResponseEntity<List<Breaktime>> getBreaktimesDate(
             @RequestParam("date") String date,
             @RequestParam("userId") String userId) {
-        LocalDate parsedDate = LocalDate.parse(date);
-        List<Breaktime> breaktime = breaktimeService.getBreaktimeList(parsedDate, userId);
+        List<Breaktime> breaktime = breaktimeService.getBreaktimeList(date, userId);
         if (breaktime == null || breaktime.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(breaktime);
     }

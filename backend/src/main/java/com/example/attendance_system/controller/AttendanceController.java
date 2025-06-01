@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.attendance_system.service.AttendanceService;
 import com.example.attendance_system.dto.AttendanceRequest;
 import com.example.attendance_system.model.Attendance;
-import com.example.attendance_system.model.AttendanceId;
 
 @RestController
 @RequestMapping("/api/attendance")
@@ -40,7 +39,7 @@ public class AttendanceController {
     public ResponseEntity<Attendance> getLatestAttendance(@RequestParam("userId") String userId) {
         Attendance latestAttendance = attendanceService.getLatestAttendance(userId);
         if (latestAttendance == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(latestAttendance);
     }
@@ -48,10 +47,9 @@ public class AttendanceController {
     @GetMapping("/today")
     public ResponseEntity<Attendance> getTodayAttendance(@RequestParam("userId") String userId) {
         LocalDate nowDate = LocalDate.now();
-        Attendance attendance = attendanceService.getAttendance(
-            new AttendanceId(nowDate, userId));
+        Attendance attendance = attendanceService.getAttendance(nowDate.toString(), userId);
         if (attendance == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(attendance);
     }

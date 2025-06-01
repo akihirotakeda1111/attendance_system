@@ -8,9 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
-
-import java.time.LocalDate;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.attendance_system.service.BreaktimeService;
 import com.example.attendance_system.dto.BreaktimeRequest;
@@ -38,10 +35,10 @@ public class BreaktimeController {
     @GetMapping("/latest")
     public ResponseEntity<Breaktime> getLatestBreaktime(
             @RequestParam("userId") String userId
-            , @RequestParam("date") LocalDate date) {
+            , @RequestParam("date") String date) {
         Breaktime latestBreaktime = breaktimeService.getLatestBreaktime(userId, date);
         if (latestBreaktime == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(latestBreaktime);
     }

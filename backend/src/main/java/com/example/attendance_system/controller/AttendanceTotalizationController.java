@@ -35,8 +35,8 @@ public class AttendanceTotalizationController {
 
         List<AttendanceTotalizationResponse> attendanceTotalization =
                 attendanceTotalizationService.getAttendanceTotalization(request);
-        if (attendanceTotalization == null) {
-            return ResponseEntity.notFound().build();
+        if (attendanceTotalization == null || attendanceTotalization.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(attendanceTotalization);
     }
