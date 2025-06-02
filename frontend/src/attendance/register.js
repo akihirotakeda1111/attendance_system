@@ -141,7 +141,8 @@ const AttendanceRegister = ({ date }) => {
     }
     const attendanceData = await responseAttendance.json();
     setAttendanceStartDate(new DateValue(new Date(attendanceData.startTime)))
-    setAttendanceEndDate(new DateValue(new Date(attendanceData.endTime)))
+    setAttendanceEndDate(new DateValue(
+      attendanceData.endTime ? new Date(attendanceData.endTime) : new Date(now)))
 
     const responseBreaktime = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime/date?${params.toString()}`
@@ -160,7 +161,8 @@ const AttendanceRegister = ({ date }) => {
     const breaktimeData = await responseBreaktime.json();
     let tmpBreaktimeData = breaktimeData.map(b => ({
       startDate: new DateValue(new Date(b.startTime)),
-      endDate: new DateValue(new Date(b.endTime))
+      endDate: new DateValue(new Date(
+        b.endTime ? new Date(b.endTime) : new Date(now)))
     }));
     setBreaktimes(tmpBreaktimeData);
   };
