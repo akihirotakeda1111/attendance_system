@@ -3,6 +3,7 @@ import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
 import { getDaysInMonth, toYMDHMS, getDiffHours } from "../utils";
+import { handleApiError } from "../errorHandler";
 import AttendanceRegister from "./register";
 
 // 休憩情報のセルコンポーネント
@@ -118,12 +119,24 @@ const AttendanceManagement = () => {
       setWorkingData(getWorkingData(null, null, null));
       return;
     }
+    if (!responseAttendance.ok) {
+      const errorResponse = await responseAttendance.json();
+      handleApiError(errorResponse);
+      setWorkingData(getWorkingData(null, null, null));
+      return;
+    }
     const attendanceData = await responseAttendance.json();
 
     const responseBreaktime = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime?${params.toString()}`
     );
     if (responseBreaktime.status === 204) {
+      setWorkingData(getWorkingData(attendanceData, null, null));
+      return;
+    }
+    if (!responseBreaktime.ok) {
+      const errorResponse = await responseBreaktime.json();
+      handleApiError(errorResponse);
       setWorkingData(getWorkingData(attendanceData, null, null));
       return;
     }
@@ -140,6 +153,12 @@ const AttendanceManagement = () => {
       `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${worktimeParams.toString()}`
     );
     if (worktimeResponse.status === 204) {
+      setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
+      return;
+    }
+    if (!worktimeResponse.ok) {
+      const errorResponse = await worktimeResponse.json();
+      handleApiError(errorResponse);
       setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
       return;
     }

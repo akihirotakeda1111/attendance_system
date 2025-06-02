@@ -84,9 +84,9 @@ public class AttendanceTotalizationRepositoryImpl implements AttendanceTotalizat
         } catch (DateTimeParseException
             | java.util.IllegalFormatException
             | NumberFormatException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveBreaktimes: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

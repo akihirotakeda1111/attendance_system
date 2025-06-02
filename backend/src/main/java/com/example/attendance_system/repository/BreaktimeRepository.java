@@ -10,8 +10,6 @@ import java.util.Optional;
 import com.example.attendance_system.model.Breaktime;
 import com.example.attendance_system.model.BreaktimeId;
 
-import jakarta.transaction.Transactional;
-
 @Repository
 public interface BreaktimeRepository extends JpaRepository<Breaktime, BreaktimeId> {
 
@@ -37,6 +35,5 @@ public interface BreaktimeRepository extends JpaRepository<Breaktime, BreaktimeI
     Optional<Breaktime> findTopByUserIdAndDateAndEndTimeIsNullOrderByNumberDesc(String userId, LocalDate date);
 
     // ユーザーと日付を指定して休憩情報を削除
-    @Transactional
     void deleteByUserIdAndDate(String userId, LocalDate date);
 }

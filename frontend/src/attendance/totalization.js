@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import Message from "../components/Message";
 import { getWeeksInMonth } from "../utils";
+import { handleApiError } from "../errorHandler";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -41,6 +42,12 @@ const AttendanceTotalization = () => {
       `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${params.toString()}`
     );
     if (response.status === 204) {
+      setWorkingData(null);
+      return;
+    }
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
       setWorkingData(null);
       return;
     }

@@ -8,7 +8,6 @@ import com.example.attendance_system.exception.ValidationException;
 import com.example.attendance_system.model.Attendance;
 import com.example.attendance_system.model.AttendanceId;
 
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -26,17 +25,16 @@ public class AttendanceService {
             LocalDateTime startTime = LocalDateTime.parse(request.getStartTime());
             LocalDateTime endTime = LocalDateTime.parse(request.getEndTime());
             if (!endTime.isAfter(startTime)) {
-                throw new ValidationException("End time cannot be before start time.");
+                throw new ValidationException("End time(" + endTime.toString() + ") cannot be before start time(" + startTime.toString() + ") .");
             }
 
             Attendance attendance = new Attendance(date, request.getUserId(), startTime, endTime);
             attendanceRepository.save(attendance);
-        } catch (DateTimeParseException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
-        } catch (ValidationException e) {
-            throw new ValidationException("Invalid date period: " + e.getMessage());
+        } catch (DateTimeParseException
+            | ValidationException e) {
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveAttendance: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         
     }
@@ -48,7 +46,7 @@ public class AttendanceService {
             Attendance attendance = new Attendance(ymd, request.getUserId(), ymdhms, null);
             attendanceRepository.save(attendance);
         } catch (Exception e) {
-            throw new RuntimeException("Error saveStartAttendance: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -63,7 +61,7 @@ public class AttendanceService {
                 attendanceRepository.save(latestAttendance);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error saveEndAttendance: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -73,9 +71,9 @@ public class AttendanceService {
             AttendanceId attendanceId = new AttendanceId(parsedDate, userId);
             return attendanceRepository.findById(attendanceId).orElse(null);
         } catch (DateTimeParseException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error getAttendance: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         
     }
@@ -87,7 +85,7 @@ public class AttendanceService {
                 .orElse(null);
             return latestAttendance;
         } catch (Exception e) {
-            throw new RuntimeException("Error getLatestAttendance: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -101,9 +99,9 @@ public class AttendanceService {
         } catch (DateTimeParseException
             | java.util.IllegalFormatException
             | NumberFormatException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error getAttendanceList: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

@@ -41,7 +41,7 @@ public class BreaktimeService {
         } catch (ValidationException e) {
             throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveBreaktimes: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -51,12 +51,17 @@ public class BreaktimeService {
             LocalDateTime startTime = LocalDateTime.parse(request.getStartTime());
             LocalDateTime endTime = LocalDateTime.parse(request.getEndTime());
             LocalDateTime expectedEndTime = request.getExpectedEndTime() == null ? null : LocalDateTime.parse(request.getExpectedEndTime());
+            if (!endTime.isAfter(startTime)) {
+                throw new ValidationException("End time(" + endTime.toString() + ") cannot be before start time(" + startTime.toString() + ") .");
+            }
+
             Breaktime breaktime = new Breaktime(date, request.getUserId(), request.getNumber(), startTime, endTime, expectedEndTime);
             breaktimeRepository.save(breaktime);
-        } catch (DateTimeParseException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+        } catch (DateTimeParseException
+            | ValidationException e) {
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveBreaktime: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -65,9 +70,9 @@ public class BreaktimeService {
             LocalDate ymd = LocalDate.parse(date);
             breaktimeRepository.deleteByUserIdAndDate(userId, ymd);
         } catch (DateTimeParseException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error deleteBreaktimes: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -83,9 +88,9 @@ public class BreaktimeService {
             Breaktime breaktime = new Breaktime(ymd, request.getUserId(), number, ymdhms, null, expectedEndTime);
             breaktimeRepository.save(breaktime);
         } catch (DateTimeException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveBreaktime: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -101,9 +106,9 @@ public class BreaktimeService {
                 breaktimeRepository.save(latestBreaktime);
             }
         } catch (DateTimeParseException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveBreaktime: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -115,9 +120,9 @@ public class BreaktimeService {
                     .orElse(null);
             return latestBreaktime;
         } catch (DateTimeParseException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveBreaktime: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -131,9 +136,9 @@ public class BreaktimeService {
         } catch (DateTimeParseException
             | java.util.IllegalFormatException
             | NumberFormatException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveBreaktimes: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
     
@@ -142,9 +147,9 @@ public class BreaktimeService {
             LocalDate parsedDate = LocalDate.parse(date);
             return breaktimeRepository.findByUserIdAndDate(userId, parsedDate);
         } catch (DateTimeParseException e) {
-            throw new ValidationException("Invalid date or time format: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error saveBreaktimes: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

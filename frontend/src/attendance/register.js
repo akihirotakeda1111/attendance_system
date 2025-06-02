@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { YearDropdown, MonthDropdown, DayDropdown, HourDropdown, MinuteDropdown } from "../components/Dropdown";
 import { toRegistDateStr, isOverlappingPeriod, isPartOverlappingPeriod, isStartToEnd } from "../utils";
+import { handleApiError } from "../errorHandler";
 import Message from "../components/Message";
 
 // 休憩情報の入力コンポーネント
@@ -133,6 +134,11 @@ const AttendanceRegister = ({ date }) => {
     if (responseAttendance.status === 204) {
       return;
     }
+    if (!responseAttendance.ok) {
+      const errorResponse = await responseAttendance.json();
+      handleApiError(errorResponse);
+      return;
+    }
     const attendanceData = await responseAttendance.json();
     setAttendanceStartDate(new DateValue(new Date(attendanceData.startTime)))
     setAttendanceEndDate(new DateValue(new Date(attendanceData.endTime)))
@@ -141,6 +147,12 @@ const AttendanceRegister = ({ date }) => {
       `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime/date?${params.toString()}`
     );
     if (responseBreaktime.status === 204) {
+      setBreaktimes([]);
+      return;
+    }
+    if (!responseBreaktime.ok) {
+      const errorResponse = await responseBreaktime.json();
+      handleApiError(errorResponse);
       setBreaktimes([]);
       return;
     }

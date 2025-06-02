@@ -23,7 +23,7 @@ public class AttendanceTotalizationService {
         } catch (ValidationException e) {
             throw new ValidationException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error getAttendanceList: " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

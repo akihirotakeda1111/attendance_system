@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { toYMDHMS, isHalfWidthNumber } from "./utils";
+import { handleApiError } from "./errorHandler";
 
 // 出退勤登録コンポーネント
 const Attendance = () => {
@@ -19,6 +20,12 @@ const Attendance = () => {
       setTodayAttendance(null);
       return;
     }
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
+      setTodayAttendance(null);
+      return;
+    }
     const data = await response.json();
     setTodayAttendance(data);
   }, [userId]);
@@ -29,6 +36,12 @@ const Attendance = () => {
       `${process.env.REACT_APP_API_BASE_URL}/attendance/latest?userId=${userId}`
     );
     if (response.status === 204) {
+      setLatestAttendance(null);
+      return;
+    }
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
       setLatestAttendance(null);
       return;
     }
@@ -47,6 +60,12 @@ const Attendance = () => {
       setLatestBreaktime(null);
       return;
     }
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
+      setLatestBreaktime(null);
+      return;
+    }
     const data = await response.json();
     setLatestBreaktime(data);
   }, [userId, latestAttendance]);
@@ -59,8 +78,8 @@ const Attendance = () => {
       body: JSON.stringify({ userId }),
     });
     if (!response.ok) {
-      const errorMessage = await response.text();
-      alert(`Error: ${errorMessage}`);
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
       return;
     }
     const message = await response.text();
@@ -76,6 +95,11 @@ const Attendance = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),
     });
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
+      return;
+    }
     const message = await response.text();
     alert(message);
     fetchTodayAttendance();
@@ -93,6 +117,11 @@ const Attendance = () => {
         minute: minute === "" ? 0 : parseInt(minute),
        }),
     });
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
+      return;
+    }
     const message = await response.text();
     alert(message);
     fetchLatestBreaktime();
@@ -108,6 +137,11 @@ const Attendance = () => {
         date: latestAttendance.date,
        }),
     });
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
+      return;
+    }
     const message = await response.text();
     alert(message);
     fetchLatestBreaktime();
