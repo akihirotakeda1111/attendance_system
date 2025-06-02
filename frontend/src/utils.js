@@ -31,6 +31,11 @@ export function isHalfWidthNumber(str) {
     return /^[0-9]+$/.test(str);
 }
 
+// 半角英数字か判定する
+export function isHalfWidthNumberAndAlpha(str) {
+    return /^[a-zA-Z0-9]+$/.test(str);
+}
+
 // 月の週番号を取得する
 export function getWeeksInMonth(year, month) {
   const weeks = new Set();
