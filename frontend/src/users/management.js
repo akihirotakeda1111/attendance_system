@@ -3,7 +3,7 @@ import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
 import { isHalfWidthNumberAndAlpha } from "../utils";
 import { handleApiError } from "../errorHandler";
-//import UsersRegister from "./register";
+import UsersRegister from "./register";
 
 // 登録・修正ボタンコンポーネント
 const RegistButton = ({ data, fecthData }) => {
@@ -24,7 +24,7 @@ const RegistButton = ({ data, fecthData }) => {
         open={dialogOpen}
         onClose={() => handleClose()}
         title={!data ? "従業員登録(新規登録)" : `従業員登録(${data.id})`}
-        content={<usersRegister id={!data ? null : data.id}/>} />
+        content={<UsersRegister selectedId={!data ? null : data.id}/>} />
     </>
   );
 };

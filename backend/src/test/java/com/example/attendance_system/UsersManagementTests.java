@@ -1,6 +1,7 @@
 package com.example.attendance_system;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -17,6 +19,31 @@ class UsersManagementTests {
 
 	@Autowired
     private TestRestTemplate restTemplate;
+
+    @Test
+	void recordUser() {
+        String url = "/api/manage/users";
+        ResponseEntity<String> response;
+        Map<String, Object> params = new HashMap<>();
+
+        params.put("id", "testUser");
+        params.put("password", "testUserPass");
+        params.put("name", "テストユーザー");
+        params.put("email", "a@a.com");
+        params.put("role", "00");
+        response = restTemplate.postForEntity(url, params, String.class);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("id", "testUsertestUser");
+        params.put("password", "testUserPasstestUserPass");
+        params.put("name", "テストユーザーテストユーザー");
+        params.put("email", "a@a.com");
+        params.put("role", "00");
+        response = restTemplate.postForEntity(url, params, String.class);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+	}
 
     @Test
 	void getUsers() {

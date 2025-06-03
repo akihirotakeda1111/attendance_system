@@ -36,6 +36,16 @@ export function isHalfWidthNumberAndAlpha(str) {
     return /^[a-zA-Z0-9]+$/.test(str);
 }
 
+// パスワードの形式が判定する
+export function isPassword(str) {
+    return /^[a-zA-Z\d@$!%*?&]+$/.test(str);
+}
+
+// メールアドレスの形式か判定する
+export function isEmailaddress(str) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+}
+
 // 月の週番号を取得する
 export function getWeeksInMonth(year, month) {
   const weeks = new Set();

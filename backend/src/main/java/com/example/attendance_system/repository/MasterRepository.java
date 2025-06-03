@@ -6,9 +6,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import com.example.attendance_system.model.Master;
+import com.example.attendance_system.model.MasterId;
 
 @Repository
-public interface MasterRepository extends JpaRepository<Master, String> {
+public interface MasterRepository extends JpaRepository<Master, MasterId> {
 
     // 権限情報を取得
     @Query("SELECT DISTINCT m FROM Master m WHERE m.category_code = '00'")

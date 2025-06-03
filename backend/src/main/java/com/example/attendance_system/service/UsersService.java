@@ -6,6 +6,7 @@ import org.springframework.data.domain.ExampleMatcher;
 
 import com.example.attendance_system.repository.MasterRepository;
 import com.example.attendance_system.repository.UsersRepository;
+import com.example.attendance_system.dto.UsersRequest;
 import com.example.attendance_system.model.Master;
 import com.example.attendance_system.model.Users;
 
@@ -22,6 +23,16 @@ public class UsersService {
     public UsersService(UsersRepository usersRepository, MasterRepository masterRepository) {
         this.usersRepository = usersRepository;
         this.masterRepository = masterRepository;
+    }
+
+    public void saveUser(UsersRequest request) {
+        try {
+            Users users = new Users(request.getId(), request.getPassword(), request.getName()
+                , request.getEmail(), request.getRole());
+            usersRepository.save(users);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     public List<Users> getUsers() {
@@ -50,6 +61,15 @@ public class UsersService {
             return users.stream()
                 .map(user -> new Users(user.getId(), user.getPassword(), user.getName(), user.getEmail(), roleMap.get(user.getRole())))
                 .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public Users getUser(String id) {
+        try {
+            return usersRepository.findById(id)
+                .orElse(null);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
