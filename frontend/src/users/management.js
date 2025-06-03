@@ -66,7 +66,7 @@ const UsersManagement = () => {
 
   return (
     <div>
-      <h2>勤務管理</h2>
+      <h2>従業員管理</h2>
       <table className="table-layout none-border">
         <tbody>
           <tr>
