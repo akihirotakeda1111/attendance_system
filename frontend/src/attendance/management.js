@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
@@ -15,7 +15,7 @@ const DataCell = ({ breaktimeData }) => {
   return (
     <>
       <a 
-        href="#" 
+        href="javascript:void(0)" 
         onClick={(e) => {
           e.preventDefault();
           if (breaktimeData.length > 0) setDialogOpen(true);
@@ -234,7 +234,7 @@ const AttendanceManagement = () => {
             ))
           ) : (
             <tr>
-              <td colspan="4">
+              <td colSpan="6">
                 <Message type="noData" />
               </td>
             </tr>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
 import { isHalfWidthNumberAndAlpha } from "../utils";
@@ -129,7 +129,7 @@ const UsersManagement = () => {
             ))
           ) : (
             <tr>
-              <td colspan="5">
+              <td colSpan="5">
                 <Message type="noData" />
               </td>
             </tr>

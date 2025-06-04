@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import Message from "../components/Message";
 import { getWeeksInMonth } from "../utils";
@@ -121,7 +121,7 @@ const AttendanceTotalization = () => {
       <table className="table-layout none-border">
         <tbody>
           <tr>
-            <td colspan="2">
+            <td colSpan="2">
               <span className="pr-20">
                 <label>
                   <input
