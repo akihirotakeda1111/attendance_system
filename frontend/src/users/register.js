@@ -5,7 +5,7 @@ import Message from "../components/Message";
 import { isHalfWidthNumberAndAlpha, isPassword, isEmailaddress } from "../utils";
 
 // 登録コンポーネント
-const UsersRegister = ({ selectedId }) => {
+const UsersRegister = ({ selectedId, handleClose }) => {
   const { inputMaxLength } = useContext(AppSettingsContext);
 
   const [userId, setUserId] = useState("admin");
@@ -61,6 +61,7 @@ const UsersRegister = ({ selectedId }) => {
     }
     const message = await response.text();
     alert(message);
+    handleClose();
   };
 
   // 初期データ取得

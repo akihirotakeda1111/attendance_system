@@ -95,7 +95,7 @@ const InputBreaktime = ({ breaktimes, setBreaktimes }) => {
 };
 
 // 勤務登録コンポーネント
-const AttendanceRegister = ({ date }) => {
+const AttendanceRegister = ({ date, handleClose }) => {
   class DateValue {
     constructor(date) {
       this.year = date.getFullYear();
@@ -217,6 +217,7 @@ const AttendanceRegister = ({ date }) => {
     }
     const breaktimeMessage = await breaktimeResponse.text();
     alert(breaktimeMessage);
+    handleClose();
   };
 
   // 初期データ取得

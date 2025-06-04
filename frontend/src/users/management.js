@@ -24,7 +24,7 @@ const RegistButton = ({ data, fecthData }) => {
         open={dialogOpen}
         onClose={() => handleClose()}
         title={!data ? "従業員登録(新規登録)" : `従業員登録(${data.id})`}
-        content={<UsersRegister selectedId={!data ? null : data.id}/>} />
+        content={<UsersRegister selectedId={!data ? null : data.id} handleClose={handleClose}/>} />
     </>
   );
 };

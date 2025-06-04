@@ -65,7 +65,7 @@ const RegistButton = ({ data, fecthData }) => {
         open={dialogOpen}
         onClose={() => handleClose()}
         title={`勤務登録(${data.date})`}
-        content={<AttendanceRegister date={data.date}/>} />
+        content={<AttendanceRegister date={data.date} handleClose={handleClose}/>} />
     </>
   );
 };
