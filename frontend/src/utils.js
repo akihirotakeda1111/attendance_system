@@ -18,7 +18,7 @@ export const getUserIdFromToken = () => {
   if (!token || token === "null") {
     return null;
   } else {
-    const decoded = jwtDecode(token);console.log(decoded);
+    const decoded = jwtDecode(token);
     return decoded.sub || null;
   }
 };
