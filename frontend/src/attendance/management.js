@@ -3,7 +3,7 @@ import { AuthContext } from "../AuthContext";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
-import { getDaysInMonth, toYMDHMS, getDiffHours } from "../utils";
+import { getDaysInMonth, toYMDHMS, getDiffHours, getUserIdFromToken } from "../utils";
 import { handleApiError } from "../errorHandler";
 import AttendanceRegister from "./register";
 
@@ -79,7 +79,7 @@ const AttendanceManagement = () => {
   const currentYear = String(now.getFullYear());
   const currentMonth = String(now.getMonth() + 1);
 
-  const [userId, setUserId] = useState("admin");
+  const [userId, setUserId] = useState(getUserIdFromToken());
   const [year, setYear] = useState(currentYear);
   const [month, setMonth] = useState(currentMonth);
   const [users, setUsers] = useState();

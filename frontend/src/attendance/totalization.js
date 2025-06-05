@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import Message from "../components/Message";
-import { getWeeksInMonth } from "../utils";
+import { getWeeksInMonth, getUserIdFromToken } from "../utils";
 import { handleApiError } from "../errorHandler";
 import { Bar } from "react-chartjs-2";
 import {
@@ -25,7 +25,7 @@ const AttendanceTotalization = () => {
   const currentYear = String(now.getFullYear());
   const currentMonth = String(now.getMonth() + 1);
 
-  const [userId, setUserId] = useState("admin");
+  const [userId, setUserId] = useState(getUserIdFromToken());
   const [period, setPeriod] = useState("monthly");
   const [year, setYear] = useState(currentYear);
   const [month, setMonth] = useState(currentMonth);

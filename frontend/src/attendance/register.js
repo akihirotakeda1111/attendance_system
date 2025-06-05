@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
 import { YearDropdown, MonthDropdown, DayDropdown, HourDropdown, MinuteDropdown } from "../components/Dropdown";
-import { toRegistDateStr, isOverlappingPeriod, isPartOverlappingPeriod, isStartToEnd } from "../utils";
+import { toRegistDateStr, isOverlappingPeriod, isPartOverlappingPeriod, isStartToEnd, getUserIdFromToken } from "../utils";
 import { handleApiError } from "../errorHandler";
 import Message from "../components/Message";
 
@@ -119,7 +119,7 @@ const AttendanceRegister = ({ date, handleClose }) => {
   
   const now = date ? new Date(date) : new Date();
 
-  const [userId, setUserId] = useState("admin");
+  const [userId, setUserId] = useState(getUserIdFromToken());
   const [attendanceStartDate, setAttendanceStartDate] = useState(new DateValue(now));
   const [attendanceEndDate, setAttendanceEndDate] = useState(new DateValue(now));
   const [breaktimes, setBreaktimes] = useState([]);

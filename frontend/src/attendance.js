@@ -1,13 +1,13 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
 import { AuthContext } from "./AuthContext";
-import { toYMDHMS, isHalfWidthNumber } from "./utils";
+import { toYMDHMS, isHalfWidthNumber, getUserIdFromToken } from "./utils";
 import { handleApiError } from "./errorHandler";
 
 // 出退勤登録コンポーネント
 const Attendance = () => {
   const { authToken } = useContext(AuthContext);
   
-  const [userId, setUserId] = useState("admin");
+  const [userId, setUserId] = useState(getUserIdFromToken());
   const [minute, setMiute] = useState("");
   const [now, setNow] = useState(new Date());
   const [todayAttendance, setTodayAttendance] = useState(null);

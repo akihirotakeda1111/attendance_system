@@ -1,4 +1,27 @@
 import { getWeek } from "date-fns";
+import { jwtDecode } from "jwt-decode";
+
+// tokenから権限を取得
+export const getRoleFromToken = () => {
+  const token = localStorage.getItem("authToken");
+  if (!token || token === "null") {
+    return "00";
+  } else {
+    const decoded = jwtDecode(token);
+    return decoded.roles[0] || "00";
+  }
+};
+
+// tokenからIDを取得
+export const getUserIdFromToken = () => {
+  const token = localStorage.getItem("authToken");
+  if (!token || token === "null") {
+    return null;
+  } else {
+    const decoded = jwtDecode(token);console.log(decoded);
+    return decoded.sub || null;
+  }
+};
 
 // 日付を登録形式の文字列に変換する
 export function toRegistDateStr(year, month, day, hour, minute) {

@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
-import { isHalfWidthNumberAndAlpha } from "../utils";
+import { isHalfWidthNumberAndAlpha, getUserIdFromToken } from "../utils";
 import { handleApiError } from "../errorHandler";
 import UsersRegister from "./register";
 
@@ -34,7 +34,7 @@ const RegistButton = ({ data, fecthData }) => {
 const UsersManagement = () => {
   const { authToken } = useContext(AuthContext);
 
-  const [userId, setUserId] = useState("admin");
+  const [userId, setUserId] = useState(getUserIdFromToken());
   const [id, setId] = useState("");
   const [userName, setUserName] = useState("");
   const [usersData, setUsersData] = useState([]);

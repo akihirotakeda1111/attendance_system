@@ -20,8 +20,8 @@ public class JwtUtil {
         claims.put("roles", List.of(user.getRole()));
 
         return Jwts.builder()
-                .setSubject(user.getId())
                 .setClaims(claims)
+                .setSubject(user.getId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SECRET_KEY)

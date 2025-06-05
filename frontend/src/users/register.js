@@ -3,14 +3,14 @@ import { AuthContext } from "../AuthContext";
 import { AppSettingsContext } from "../AppSettingsContext";
 import { handleApiError } from "../errorHandler";
 import Message from "../components/Message";
-import { isHalfWidthNumberAndAlpha, isPassword, isEmailaddress } from "../utils";
+import { isHalfWidthNumberAndAlpha, isPassword, isEmailaddress, getUserIdFromToken } from "../utils";
 
 // 登録コンポーネント
 const UsersRegister = ({ selectedId, handleClose }) => {
   const { inputMaxLength } = useContext(AppSettingsContext);
   const { authToken } = useContext(AuthContext);
 
-  const [userId, setUserId] = useState("admin");
+  const [userId, setUserId] = useState(getUserIdFromToken());
   const [id, setId] = useState(selectedId ? selectedId : "");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");

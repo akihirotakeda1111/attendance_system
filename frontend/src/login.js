@@ -34,7 +34,6 @@ const Login = () => {
     }
 
     const data = await response.json();
-    localStorage.setItem("authToken", data.token);
     setAuthToken(data.token);
     navigate("/attendance");
   };
