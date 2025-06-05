@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../AuthContext";
 import { AppSettingsContext } from "../AppSettingsContext";
 import { handleApiError } from "../errorHandler";
 import Message from "../components/Message";
@@ -7,6 +8,7 @@ import { isHalfWidthNumberAndAlpha, isPassword, isEmailaddress } from "../utils"
 // 登録コンポーネント
 const UsersRegister = ({ selectedId, handleClose }) => {
   const { inputMaxLength } = useContext(AppSettingsContext);
+  const { authToken } = useContext(AuthContext);
 
   const [userId, setUserId] = useState("admin");
   const [id, setId] = useState(selectedId ? selectedId : "");
@@ -23,7 +25,11 @@ const UsersRegister = ({ selectedId, handleClose }) => {
       id: id,
     });
     const reaponse = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/users/id?${params.toString()}`
+      `${process.env.REACT_APP_API_BASE_URL}/manage/users/id?${params.toString()}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (reaponse.status === 204) {
       return;
@@ -45,7 +51,8 @@ const UsersRegister = ({ selectedId, handleClose }) => {
   const registSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}` },
       body: JSON.stringify({
         id: id,
         password: password,
@@ -71,7 +78,11 @@ const UsersRegister = ({ selectedId, handleClose }) => {
 
   // 権限ドロップダウンの作成
     useEffect(() => {
-      fetch(`${process.env.REACT_APP_API_BASE_URL}/master/roles`)
+      fetch(`${process.env.REACT_APP_API_BASE_URL}/master/roles`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        })
         .then(res => res.json())
         .then(data => setRoles(data));
     }, []);
@@ -148,7 +159,7 @@ const UsersRegister = ({ selectedId, handleClose }) => {
             <td>
               <input
                 type="password"
-                placeholder="半角英数字で入力"
+                placeholder="半角英数字と記号で入力"
                 value={password}
                 maxLength={inputMaxLength.password}
                 onChange={(e) => {

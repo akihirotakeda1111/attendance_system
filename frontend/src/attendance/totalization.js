@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../AuthContext";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import Message from "../components/Message";
 import { getWeeksInMonth } from "../utils";
@@ -18,6 +19,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 // 勤務集計コンポーネント
 const AttendanceTotalization = () => {
+  const { authToken } = useContext(AuthContext);
+  
   const now = new Date();
   const currentYear = String(now.getFullYear());
   const currentMonth = String(now.getMonth() + 1);
@@ -39,7 +42,11 @@ const AttendanceTotalization = () => {
       userId: userId,
     });
     const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${params.toString()}`
+      `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${params.toString()}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (response.status === 204) {
       setWorkingData(null);
@@ -105,7 +112,11 @@ const AttendanceTotalization = () => {
 
   // ユーザードロップダウンの作成
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/users`)
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      })
       .then(res => res.json())
       .then(data => setUsers(data));
   }, []);

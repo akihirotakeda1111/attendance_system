@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../AuthContext";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
 import { isHalfWidthNumberAndAlpha } from "../utils";
@@ -31,6 +32,8 @@ const RegistButton = ({ data, fecthData }) => {
 
 // 従業員管理コンポーネント
 const UsersManagement = () => {
+  const { authToken } = useContext(AuthContext);
+
   const [userId, setUserId] = useState("admin");
   const [id, setId] = useState("");
   const [userName, setUserName] = useState("");
@@ -43,7 +46,11 @@ const UsersManagement = () => {
       name: userName ? userName : "",
     });
     const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/users?${params.toString()}`
+      `${process.env.REACT_APP_API_BASE_URL}/manage/users?${params.toString()}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (response.status === 204) {
       setUsersData([]);

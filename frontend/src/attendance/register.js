@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../AuthContext";
 import { YearDropdown, MonthDropdown, DayDropdown, HourDropdown, MinuteDropdown } from "../components/Dropdown";
 import { toRegistDateStr, isOverlappingPeriod, isPartOverlappingPeriod, isStartToEnd } from "../utils";
 import { handleApiError } from "../errorHandler";
@@ -114,6 +115,8 @@ const AttendanceRegister = ({ date, handleClose }) => {
     toString() { return toRegistDateStr(this.year, this.month, this.day, this.hour, this.minute); }
   }
 
+  const { authToken } = useContext(AuthContext);
+  
   const now = date ? new Date(date) : new Date();
 
   const [userId, setUserId] = useState("admin");
@@ -129,7 +132,11 @@ const AttendanceRegister = ({ date, handleClose }) => {
       userId: userId
     });
     const responseAttendance = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance/date?${params.toString()}`
+      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance/date?${params.toString()}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (responseAttendance.status === 204) {
       return;
@@ -145,7 +152,11 @@ const AttendanceRegister = ({ date, handleClose }) => {
       attendanceData.endTime ? new Date(attendanceData.endTime) : new Date(now)))
 
     const responseBreaktime = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime/date?${params.toString()}`
+      `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime/date?${params.toString()}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (responseBreaktime.status === 204) {
       setBreaktimes([]);
@@ -171,7 +182,8 @@ const AttendanceRegister = ({ date, handleClose }) => {
   const registSubmit = async () => {
     const attendansResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}` },
       body: JSON.stringify({
         userId: userId,
         date: date,
@@ -207,7 +219,8 @@ const AttendanceRegister = ({ date, handleClose }) => {
       ];
     const breaktimeResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/breaktime`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}` },
       body: JSON.stringify(breaktimeRequest),
     });
     if (!breaktimeResponse.ok) {

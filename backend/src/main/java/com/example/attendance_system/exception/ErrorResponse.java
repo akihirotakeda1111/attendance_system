@@ -1,13 +1,11 @@
 package com.example.attendance_system.exception;
 
-import java.time.LocalDateTime;
-
 public class ErrorResponse {
     private String category;
     private int errorCode;
     private String status;
     private String message;
-    private LocalDateTime timestamp;
+    //private LocalDateTime timestamp;
     private String displayMessage;
 
     public ErrorResponse(ErrorType errorType, String message, String displayMessage) {
@@ -15,7 +13,7 @@ public class ErrorResponse {
         this.errorCode = errorType.getErrorCode();
         this.status = errorType.getStatus();
         this.message = message;
-        this.timestamp = LocalDateTime.now();
+        //this.timestamp = LocalDateTime.now();
         this.displayMessage = displayMessage;
     }
 
@@ -23,6 +21,6 @@ public class ErrorResponse {
     public int getErrorCode() { return errorCode; }
     public String getStatus() { return status; }
     public String getMessage() { return message; }
-    public LocalDateTime getTimestamp() { return timestamp; }
+    //public LocalDateTime getTimestamp() { return timestamp; }
     public String getDisplayMessage() { return displayMessage; }
 }

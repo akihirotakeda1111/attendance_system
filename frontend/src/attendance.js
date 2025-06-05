@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
+import { AuthContext } from "./AuthContext";
 import { toYMDHMS, isHalfWidthNumber } from "./utils";
 import { handleApiError } from "./errorHandler";
 
 // 出退勤登録コンポーネント
 const Attendance = () => {
+  const { authToken } = useContext(AuthContext);
+  
   const [userId, setUserId] = useState("admin");
   const [minute, setMiute] = useState("");
   const [now, setNow] = useState(new Date());
@@ -14,7 +17,11 @@ const Attendance = () => {
   // 当日の出勤情報取得イベント
   const fetchTodayAttendance = useCallback(async () => {
     const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/attendance/today?userId=${userId}`
+      `${process.env.REACT_APP_API_BASE_URL}/attendance/today?userId=${userId}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (response.status === 204) {
       setTodayAttendance(null);
@@ -33,7 +40,11 @@ const Attendance = () => {
   // 最新の出勤情報取得イベント
   const fetchLatestAttendance = useCallback(async () => {
     const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/attendance/latest?userId=${userId}`
+      `${process.env.REACT_APP_API_BASE_URL}/attendance/latest?userId=${userId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`}
+      }
     );
     if (response.status === 204) {
       setLatestAttendance(null);
@@ -54,7 +65,11 @@ const Attendance = () => {
     if (!latestAttendance) return;
 
     const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/breaktime/latest?userId=${userId}&date=${latestAttendance.date}`
+      `${process.env.REACT_APP_API_BASE_URL}/breaktime/latest?userId=${userId}&date=${latestAttendance.date}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`}
+      }
     );
     if (response.status === 204) {
       setLatestBreaktime(null);
@@ -74,7 +89,8 @@ const Attendance = () => {
   const attendanceStartSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}` },
       body: JSON.stringify({ userId }),
     });
     if (!response.ok) {
@@ -92,7 +108,8 @@ const Attendance = () => {
   const attendanceEndSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}` },
       body: JSON.stringify({ userId }),
     });
     if (!response.ok) {
@@ -110,7 +127,8 @@ const Attendance = () => {
   const breaktimeStartSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}` },
       body: JSON.stringify({
         userId: userId,
         date: latestAttendance.date,
@@ -131,7 +149,8 @@ const Attendance = () => {
   const breaktimeEndSubmit = async () => {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}` },
       body: JSON.stringify({
         userId: userId,
         date: latestAttendance.date,

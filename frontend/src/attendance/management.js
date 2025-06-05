@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../AuthContext";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
@@ -72,6 +73,8 @@ const RegistButton = ({ data, fecthData }) => {
 
 // 勤務管理コンポーネント
 const AttendanceManagement = () => {
+  const { authToken } = useContext(AuthContext);
+
   const now = new Date();
   const currentYear = String(now.getFullYear());
   const currentMonth = String(now.getMonth() + 1);
@@ -113,7 +116,11 @@ const AttendanceManagement = () => {
       userId: userId,
     });
     const responseAttendance = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance?${params.toString()}`
+      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance?${params.toString()}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (responseAttendance.status === 204) {
       setWorkingData(getWorkingData(null, null, null));
@@ -128,7 +135,11 @@ const AttendanceManagement = () => {
     const attendanceData = await responseAttendance.json();
 
     const responseBreaktime = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime?${params.toString()}`
+      `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime?${params.toString()}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (responseBreaktime.status === 204) {
       setWorkingData(getWorkingData(attendanceData, null, null));
@@ -150,7 +161,11 @@ const AttendanceManagement = () => {
       userId: userId,
     });
     const worktimeResponse = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${worktimeParams.toString()}`
+      `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${worktimeParams.toString()}`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      }
     );
     if (worktimeResponse.status === 204) {
       setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
@@ -168,7 +183,11 @@ const AttendanceManagement = () => {
 
   // ユーザードロップダウンの作成
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/users`)
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      })
       .then(res => res.json())
       .then(data => setUsers(data));
   }, []);

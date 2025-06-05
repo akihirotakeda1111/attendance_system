@@ -16,6 +16,13 @@ import org.slf4j.LoggerFactory;
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAuthenticationException(AuthenticationException ex) {
+        logger.warn("Authentication error: {}", ex.getMessage(), ex);
+        return new ErrorResponse(ErrorType.UNAUTHORIZED, ex.getMessage(), "認証に失敗しました");
+    }
+
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(ValidationException ex) {
@@ -36,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({NotFoundException.class,
                         NoResourceFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserNotFoundException(NotFoundException ex) {
+    public ErrorResponse handleNotFoundException(Exception ex) {
         logger.error("No resources: {}", ex.getMessage(), ex);
         return new ErrorResponse(ErrorType.NOT_FOUND, ex.getMessage(), "リソースが存在しません");
     }
