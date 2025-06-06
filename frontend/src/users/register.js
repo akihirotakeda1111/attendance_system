@@ -49,6 +49,25 @@ const UsersRegister = ({ selectedId, handleClose }) => {
 
   // 登録イベント
   const registSubmit = async () => {
+    // 新規登録時はIDの重複チェック
+    if (!selectedId) {
+      const params = new URLSearchParams({
+        id: id,
+      });
+      const reaponse = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/users/id?${params.toString()}`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        }
+      );
+      if (reaponse.status !== 204) {
+        alert("入力されたIDはすでに登録されています");
+        return;
+      }
+    }
+
+    // 登録処理
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json",
@@ -77,14 +96,14 @@ const UsersRegister = ({ selectedId, handleClose }) => {
   }, []);
 
   // 権限ドロップダウンの作成
-    useEffect(() => {
-      fetch(`${process.env.REACT_APP_API_BASE_URL}/master/roles`, {
-          method: "GET",
-          headers: {"Content-Type": "application/json",
-            "Authorization": `Bearer ${authToken}`}
-        })
-        .then(res => res.json())
-        .then(data => setRoles(data));
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/master/roles`, {
+        method: "GET",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`}
+      })
+      .then(res => res.json())
+      .then(data => setRoles(data));
     }, []);
 
   // 入力チェック
@@ -142,18 +161,20 @@ const UsersRegister = ({ selectedId, handleClose }) => {
           <tr>
             <th>ID</th>
             <td>
-              <input
-                type="text"
-                placeholder="半角英数字で入力"
-                value={id}
-                maxLength={inputMaxLength.id}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (isHalfWidthNumberAndAlpha(value) || value === "") {
-                    setId(value);
-                  }
-                }}
-              />
+              {selectedId ? selectedId : (
+                <input
+                  type="text"
+                  placeholder="半角英数字で入力"
+                  value={id}
+                  maxLength={inputMaxLength.id}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (isHalfWidthNumberAndAlpha(value) || value === "") {
+                      setId(value);
+                    }
+                  }}
+                />
+              )}
             </td>
             <th>パスワード</th>
             <td>
