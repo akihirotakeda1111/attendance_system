@@ -199,6 +199,11 @@ span {
   vertical-align: middle !important;
 }
 
+.left {
+  text-align: left !important;
+  vertical-align: middle !important;
+}
+
 .width-100 {
   width: 100%;
 }

@@ -1,8 +1,9 @@
 package com.example.attendance_system.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import com.example.attendance_system.repository.AttendanceRepository;
+import com.example.attendance_system.repository.BreaktimeRepository;
 import com.example.attendance_system.dto.AttendanceRequest;
 import com.example.attendance_system.exception.ValidationException;
 import com.example.attendance_system.model.Attendance;
@@ -16,8 +17,13 @@ import java.util.List;
 @Service
 public class AttendanceService {
 
-    @Autowired
     private AttendanceRepository attendanceRepository;
+    private BreaktimeRepository breaktimeRepository;
+
+    public AttendanceService(AttendanceRepository attendanceRepository, BreaktimeRepository breaktimeRepository) {
+        this.attendanceRepository = attendanceRepository;
+        this.breaktimeRepository = breaktimeRepository;
+    }
 
     public void saveAttendance(AttendanceRequest request) {
         try {
@@ -60,6 +66,20 @@ public class AttendanceService {
                 latestAttendance.setEndTime(ymdhms);
                 attendanceRepository.save(latestAttendance);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteAttendance(AttendanceRequest request) {
+        try {
+            String deleteId = request.getUserId();
+            LocalDate deleteDate = LocalDate.parse(request.getDate());
+            attendanceRepository.deleteByUserIdAndDate(deleteId, deleteDate);
+            breaktimeRepository.deleteByUserIdAndDate(deleteId, deleteDate);
+        } catch (DateTimeParseException e) {
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

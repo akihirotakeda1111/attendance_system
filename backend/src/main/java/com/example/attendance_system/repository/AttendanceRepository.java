@@ -30,4 +30,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Attendan
     // 指定ユーザーで退勤時刻がnullの最新レコードを取得
     Optional<Attendance> findTopByUserIdAndEndTimeIsNullOrderByDateDesc(String userId);
 
+    // ユーザーと日付を指定して出退勤情報を削除
+    void deleteByUserIdAndDate(String userId, LocalDate date);
+
 }

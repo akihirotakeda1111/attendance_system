@@ -1,6 +1,7 @@
 package com.example.attendance_system.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 
@@ -30,6 +31,16 @@ public class UsersService {
             Users users = new Users(request.getId(), request.getPassword(), request.getName()
                 , request.getEmail(), request.getRole());
             usersRepository.save(users);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteUser(UsersRequest request) {
+        try {
+            String deleteId = request.getId();
+            usersRepository.deleteById(deleteId);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

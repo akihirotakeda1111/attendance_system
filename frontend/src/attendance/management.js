@@ -48,12 +48,17 @@ const DataCell = ({ breaktimeData }) => {
 };
 
 // 修正・登録ボタンコンポーネント
-const RegistButton = ({ data, fecthData }) => {
+const RegistButton = ({ data, fecthData, handleDelete }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleClose = () => {
     setDialogOpen(false)
-    fecthData();
   }
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      fecthData();
+    }
+  }, [dialogOpen]);
 
   return (
     <>
@@ -65,6 +70,10 @@ const RegistButton = ({ data, fecthData }) => {
       <CommonDialog
         open={dialogOpen}
         onClose={() => handleClose()}
+        onDelete={data.startTime === "-" ? null : () => {
+          handleDelete();
+          setDialogOpen(false);
+        }}
         title={`勤務登録(${data.date})`}
         content={<AttendanceRegister date={data.date} handleClose={handleClose}/>} />
     </>
@@ -99,6 +108,7 @@ const AttendanceManagement = () => {
       
       return {
         date: dateStr,
+        userId: attendance && attendance.length > 0 ? attendance[0].userId : null,
         startTime: attendance && attendance.length > 0 ? attendance[0].startTime : "-",
         endTime: attendance && attendance.length > 0 ? attendance[0].endTime : "-",
         breaktimeData: breaktimes && breaktimes.length > 0 ? breaktimes : [],
@@ -181,6 +191,29 @@ const AttendanceManagement = () => {
     setWorkingData(getWorkingData(attendanceData, breaktimeData, workTimeData));
   };
 
+  // 削除処理
+  const handleDelete = async (deleteId, deleteDate) => {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`},
+        body: JSON.stringify({
+          userId: deleteId,
+          date: deleteDate
+        }),
+      }
+    );
+    if (response.status === 204) {
+      return;
+    }
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
+      return;
+    }
+  };
+
   // ユーザードロップダウンの作成
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
@@ -248,7 +281,11 @@ const AttendanceManagement = () => {
                 <td className="center">{toYMDHMS(data.endTime)}</td>
                 <td className="center"><DataCell breaktimeData={data.breaktimeData} /></td>
                 <td className="center">{data.workHours}</td>
-                <td className="center"><RegistButton data={data} fecthData={searchSubmit} /></td>
+                <td className="center">
+                  <RegistButton data={data}
+                    fecthData={searchSubmit}
+                    handleDelete={() => handleDelete(data.userId, data.date)} />
+                </td>
               </tr>
             ))
           ) : (

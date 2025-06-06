@@ -3,6 +3,7 @@ package com.example.attendance_system.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,12 @@ public class AttendanceManagementController {
     public ResponseEntity<String> recordAttendance(@RequestBody AttendanceRequest request) {
         attendanceService.saveAttendance(request);
         return ResponseEntity.ok("出勤登録がされました");
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteAttendance(@RequestBody AttendanceRequest request) {
+        attendanceService.deleteAttendance(request);
+        return ResponseEntity.ok("出退勤削除がされました");
     }
 
     @GetMapping

@@ -7,12 +7,17 @@ import { handleApiError } from "../errorHandler";
 import UsersRegister from "./register";
 
 // 登録・修正ボタンコンポーネント
-const RegistButton = ({ data, fecthData }) => {
+const RegistButton = ({ data, fecthData, handleDelete }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleClose = () => {
     setDialogOpen(false)
-    fecthData();
   }
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      fecthData();
+    }
+  }, [dialogOpen]);
 
   return (
     <>
@@ -24,6 +29,10 @@ const RegistButton = ({ data, fecthData }) => {
       <CommonDialog
         open={dialogOpen}
         onClose={() => handleClose()}
+        onDelete={(!data || data.id === getUserIdFromToken()) ? null : () => {
+          handleDelete();
+          setDialogOpen(false);
+        }}
         title={!data ? "従業員登録(新規登録)" : `従業員登録(${data.id})`}
         content={<UsersRegister selectedId={!data ? null : data.id} handleClose={handleClose}/>} />
     </>
@@ -64,6 +73,28 @@ const UsersManagement = () => {
     }
     const data = await response.json();
     setUsersData(data);
+  };
+
+  // 削除処理
+  const handleDelete = async (deleteId) => {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`},
+        body: JSON.stringify({
+          id: deleteId
+        }),
+      }
+    );
+    if (response.status === 204) {
+      return;
+    }
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      handleApiError(errorResponse);
+      return;
+    }
   };
 
   // 初期検索の実行
@@ -131,7 +162,11 @@ const UsersManagement = () => {
                 <td className="center">{data.name}</td>
                 <td className="center">{data.email}</td>
                 <td className="center">{data.role}</td>
-                <td className="center"><RegistButton data={data} fecthData={searchSubmit} /></td>
+                <td className="center">
+                  <RegistButton data={data}
+                    fecthData={searchSubmit}
+                    handleDelete={() => handleDelete(data.id)} />
+                </td>
               </tr>
             ))
           ) : (
