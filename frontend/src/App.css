@@ -146,7 +146,7 @@ span {
   text-align: center;
 }
 
-.search-button {
+.non-register-button {
   padding: 8px 18px;
   border: none;
   border-radius: 4px;
@@ -158,8 +158,33 @@ span {
   box-shadow: 0 2px 4px rgba(25, 118, 210, 0.08);
 }
 
-.search-button:hover {
+.non-register-button:hover {
   background: #1565c0;
+}
+
+.non-register-button-disabled {
+  padding: 8px 0;
+  border: none;
+  border-radius: 4px;
+  background: #ccc;
+  color: #fff;
+  cursor: not-allowed;
+  display: inline-block;
+  text-align: center;
+}
+
+.danger-button {
+  padding: 8px 18px;
+  font-weight: bold;
+  background-color: #DC3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.danger-button:hover {
+  background-color: #b52b3a;
 }
 /* ボタンレイアウト end */
 

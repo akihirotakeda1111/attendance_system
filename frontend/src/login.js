@@ -117,13 +117,13 @@ const Login = () => {
           </div>
         )}
         {(Array.isArray(errorMessage) && errorMessage.length > 0) ? (
-          <span className="register-button-disabled width-100">
+          <span className="non-register-button-disabled width-100">
             ログイン
           </span>
         ) : (
           <button
             type="submit"
-            className="register-button width-100">
+            className="non-register-button width-100">
             ログイン
           </button>
         )}

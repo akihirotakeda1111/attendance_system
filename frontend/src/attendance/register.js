@@ -78,7 +78,7 @@ const InputBreaktime = ({ breaktimes, setBreaktimes }) => {
             </span>
           </td>
           <td colSpan="4" className="right">
-            <button className="search-button"
+            <button className="danger-button"
               onClick={() => setBreaktimes(breaktimes.filter((_, i) => i !== index))}>
                   削除
             </button>
@@ -339,7 +339,7 @@ const AttendanceRegister = ({ date, handleClose }) => {
           <InputBreaktime breaktimes={breaktimes} setBreaktimes={setBreaktimes} />
           <tr>
             <td colSpan="4" className="right">
-              <button className="search-button"
+              <button className="non-register-button"
                 onClick={() => setBreaktimes(
                   [...breaktimes, {
                     startDate: new DateValue(new Date(date)),

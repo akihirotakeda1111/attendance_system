@@ -178,7 +178,7 @@ const AttendanceTotalization = () => {
               </select>
             </td>
             <td>
-              <button className="search-button"
+              <button className="non-register-button"
                 onClick={searchSubmit}>検索</button>
             </td>
           </tr>

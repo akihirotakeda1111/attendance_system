@@ -24,7 +24,7 @@ const LogoutButton = () => {
   };
 
   return isLoginPage ? null : (
-    <button onClick={handleLogout}>ログアウト</button>
+    <button className="danger-button" onClick={handleLogout}>ログアウト</button>
   );
 };
 

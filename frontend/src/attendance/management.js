@@ -57,7 +57,7 @@ const RegistButton = ({ data, fecthData }) => {
 
   return (
     <>
-      <button className="register-button"
+      <button className="non-register-button"
         onClick={() => setDialogOpen(true)}>
         {data.startTime === "-" ? "登録" : "修正"}
       </button>
@@ -224,7 +224,7 @@ const AttendanceManagement = () => {
               </span>
             </td>
             <td>
-              <button className="search-button"
+              <button className="non-register-button"
                 onClick={searchSubmit}>検索</button>
             </td>
           </tr>
