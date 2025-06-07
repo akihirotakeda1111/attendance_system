@@ -35,6 +35,9 @@ public class BreaktimeService {
                 deleteBreaktimes(userId, date);
             });
             for (int i = 0; i < requests.size(); i++) {
+                if (requests.get(i).getStartTime() == null) {
+                    continue;
+                }
                 requests.get(i).setNumber(i+1);
                 saveBreaktime(requests.get(i));
             }
