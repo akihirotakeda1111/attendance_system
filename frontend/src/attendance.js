@@ -243,12 +243,6 @@ const Attendance = ({stateHandlers}) => {
 
   return (
     <div>
-      <input
-            type="text"
-            placeholder="ユーザーID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          />
       <div className="center fs-50">{now.toLocaleString()}</div>
       <h2>出退勤登録</h2>
       <table className="table-layout none-border">
