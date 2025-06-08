@@ -45,21 +45,28 @@ const Sidebar = () => {
 function App() {
   const [error, setError] = useState(null);
   const [isContentOnly, setContentOnly] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const stateHandlers = { setError, setContentOnly, setIsLoading };
 
   return (
     <AuthProvider>
       <BrowserRouter>
         <ErrorBoundary error={error}>
           <div className="app-container">
+            {isLoading && (
+              <div className="loading-overlay">
+                <div className="spinner"></div>
+              </div>
+            )}
             {isContentOnly ? null : <Sidebar />}
             <main className="main-content">
               {isContentOnly ? null : <div className="right"><LogoutButton /></div>}
               <Routes>
-                <Route path="/" element={<Login setError={setError} setContentOnly={setContentOnly} />} />
-                <Route path="/attendance" element={<Attendance setError={setError} setContentOnly={setContentOnly} />} />
-                <Route path="/attendance/totalization" element={<AttendanceTotalization setError={setError} setContentOnly={setContentOnly} />} />
-                <Route path="/attendance/management" element={<AttendanceManagement setError={setError} setContentOnly={setContentOnly} />} />
-                <Route path="/users/management" element={<UsersManagement setError={setError} setContentOnly={setContentOnly} />} />
+                <Route path="/" element={<Login stateHandlers={stateHandlers} />} />
+                <Route path="/attendance" element={<Attendance stateHandlers={stateHandlers} />} />
+                <Route path="/attendance/totalization" element={<AttendanceTotalization stateHandlers={stateHandlers} />} />
+                <Route path="/attendance/management" element={<AttendanceManagement stateHandlers={stateHandlers} />} />
+                <Route path="/users/management" element={<UsersManagement stateHandlers={stateHandlers} />} />
                 <Route path="/error" element={<ErrorPage setContentOnly={setContentOnly} />} />
                 <Route path="*" element={<ErrorPage setContentOnly={setContentOnly} />} />
               </Routes>

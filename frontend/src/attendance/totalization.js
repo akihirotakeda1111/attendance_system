@@ -18,7 +18,8 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // 勤務集計コンポーネント
-const AttendanceTotalization = ({setError, setContentOnly}) => {
+const AttendanceTotalization = ({stateHandlers}) => {
+  const { setError, setContentOnly, setIsLoading } = stateHandlers;
   useEffect(() => {
     setContentOnly(false);
   }, [setContentOnly]);
@@ -39,6 +40,7 @@ const AttendanceTotalization = ({setError, setContentOnly}) => {
   // 検索イベント
   const searchSubmit = async () => {
     try {
+      setIsLoading(true);
       const params = new URLSearchParams({
         monthly: period === "monthly",
         weekly: period === "weekly",
@@ -99,6 +101,8 @@ const AttendanceTotalization = ({setError, setContentOnly}) => {
       setWorkingData(tmpData);
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,6 +125,7 @@ const AttendanceTotalization = ({setError, setContentOnly}) => {
   // ユーザードロップダウンの作成
   useEffect(() => {
     try {
+      setIsLoading(true);
       fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
           method: "GET",
           headers: {"Content-Type": "application/json",
@@ -130,6 +135,8 @@ const AttendanceTotalization = ({setError, setContentOnly}) => {
         .then(data => setUsers(data));
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 

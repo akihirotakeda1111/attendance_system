@@ -48,7 +48,7 @@ const DataCell = ({ breaktimeData }) => {
 };
 
 // 修正・登録ボタンコンポーネント
-const RegistButton = ({ data, selectedUserId, fecthData, handleDelete, setError }) => {
+const RegistButton = ({ data, selectedUserId, fecthData, handleDelete, stateHandlers }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleClose = () => {
     setDialogOpen(false)
@@ -76,13 +76,14 @@ const RegistButton = ({ data, selectedUserId, fecthData, handleDelete, setError 
         }}
         title={`勤務登録(${selectedUserId} ${data.date})`}
         content={<AttendanceRegister date={data.date} selectedUserId={selectedUserId}
-          handleClose={handleClose} setError={setError} />} />
+          handleClose={handleClose} stateHandlers={stateHandlers} />} />
     </>
   );
 };
 
 // 勤務管理コンポーネント
-const AttendanceManagement = ({setError, setContentOnly}) => {
+const AttendanceManagement = ({stateHandlers}) => {
+  const { setError, setContentOnly, setIsLoading } = stateHandlers;
   useEffect(() => {
     setContentOnly(false);
   }, [setContentOnly]);
@@ -129,6 +130,7 @@ const AttendanceManagement = ({setError, setContentOnly}) => {
     setSelectedUserId(userId);
 
     try {
+      setIsLoading(true);
       const params = new URLSearchParams({
         year: year,
         month: month,
@@ -200,12 +202,15 @@ const AttendanceManagement = ({setError, setContentOnly}) => {
       setWorkingData(getWorkingData(attendanceData, breaktimeData, workTimeData));
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // 削除処理
   const handleDelete = async (deleteId, deleteDate) => {
     try {
+      setIsLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
           method: "DELETE",
@@ -227,12 +232,15 @@ const AttendanceManagement = ({setError, setContentOnly}) => {
       }
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // ユーザードロップダウンの作成
   useEffect(() => {
     try {
+      setIsLoading(true);
       fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
           method: "GET",
           headers: {"Content-Type": "application/json",
@@ -242,6 +250,8 @@ const AttendanceManagement = ({setError, setContentOnly}) => {
         .then(data => setUsers(data));
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -306,7 +316,7 @@ const AttendanceManagement = ({setError, setContentOnly}) => {
                     selectedUserId={selectedUserId}
                     fecthData={searchSubmit}
                     handleDelete={() => handleDelete(data.userId, data.date)}
-                    setError={setError} />
+                    stateHandlers={stateHandlers} />
                 </td>
               </tr>
             ))

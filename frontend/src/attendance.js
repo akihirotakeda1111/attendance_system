@@ -4,7 +4,8 @@ import { toYMDHMS, isHalfWidthNumber, getUserIdFromToken } from "./utils";
 import { handleApiError } from "./errorHandler";
 
 // 出退勤登録コンポーネント
-const Attendance = ({setError, setContentOnly}) => {
+const Attendance = ({stateHandlers}) => {
+  const { setError, setContentOnly, setIsLoading } = stateHandlers;
   useEffect(() => {
     setContentOnly(false);
   }, [setContentOnly]);
@@ -21,6 +22,7 @@ const Attendance = ({setError, setContentOnly}) => {
   // 当日の出勤情報取得イベント
   const fetchTodayAttendance = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/attendance/today?userId=${userId}`, {
           method: "GET",
@@ -42,12 +44,15 @@ const Attendance = ({setError, setContentOnly}) => {
       setTodayAttendance(data);
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   }, [userId]);
 
   // 最新の出勤情報取得イベント
   const fetchLatestAttendance = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/attendance/latest?userId=${userId}`, {
           method: "GET",
@@ -69,6 +74,8 @@ const Attendance = ({setError, setContentOnly}) => {
       setLatestAttendance(data);
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   }, [userId]);
 
@@ -77,6 +84,7 @@ const Attendance = ({setError, setContentOnly}) => {
     if (!latestAttendance) return;
 
     try {
+      setIsLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/breaktime/latest?userId=${userId}&date=${latestAttendance.date}`, {
           method: "GET",
@@ -98,12 +106,15 @@ const Attendance = ({setError, setContentOnly}) => {
       setLatestBreaktime(data);
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   }, [userId, latestAttendance]);
 
   // 出勤時刻登録イベント
   const attendanceStartSubmit = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
@@ -121,12 +132,15 @@ const Attendance = ({setError, setContentOnly}) => {
       fetchLatestAttendance();
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // 退勤時刻登録イベント
   const attendanceEndSubmit = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
         method: "PUT",
         headers: { "Content-Type": "application/json",
@@ -144,12 +158,15 @@ const Attendance = ({setError, setContentOnly}) => {
       fetchLatestAttendance();
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // 休憩開始時刻登録イベント
   const breaktimeStartSubmit = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
@@ -170,12 +187,15 @@ const Attendance = ({setError, setContentOnly}) => {
       fetchLatestBreaktime();
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // 休憩終了時刻登録イベント
   const breaktimeEndSubmit = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
         method: "PUT",
         headers: { "Content-Type": "application/json",
@@ -195,6 +215,8 @@ const Attendance = ({setError, setContentOnly}) => {
       fetchLatestBreaktime();
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

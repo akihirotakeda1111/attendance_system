@@ -96,7 +96,7 @@ const InputBreaktime = ({ breaktimes, setBreaktimes }) => {
 };
 
 // 勤務登録コンポーネント
-const AttendanceRegister = ({ date, selectedUserId, handleClose, setError }) => {
+const AttendanceRegister = ({ date, selectedUserId, handleClose, stateHandlers }) => {
   class DateValue {
     constructor(date) {
       this.year = date.getFullYear();
@@ -115,6 +115,7 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, setError }) => 
     toString() { return toRegistDateStr(this.year, this.month, this.day, this.hour, this.minute); }
   }
 
+  const { setError, setContentOnly, setIsLoading } = stateHandlers;
   const { authToken } = useContext(AuthContext);
   
   const now = date ? new Date(date) : new Date();
@@ -128,6 +129,7 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, setError }) => 
   // 入力項目の既存データ取得イベント
   const getInputData = async () => {
     try {
+      setIsLoading(true);
       const params = new URLSearchParams({
         date: date,
         userId: selectedUserId
@@ -179,12 +181,15 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, setError }) => 
       setBreaktimes(tmpBreaktimeData);
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // 登録イベント
   const registSubmit = async () => {
     try {
+      setIsLoading(true);
       const attendansResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
@@ -238,6 +243,8 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, setError }) => 
       handleClose();
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

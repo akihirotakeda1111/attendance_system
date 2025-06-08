@@ -7,7 +7,7 @@ import { handleApiError } from "../errorHandler";
 import UsersRegister from "./register";
 
 // 登録・修正ボタンコンポーネント
-const RegistButton = ({ data, fecthData, handleDelete, setError }) => {
+const RegistButton = ({ data, fecthData, handleDelete, stateHandlers }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleClose = () => {
     setDialogOpen(false)
@@ -34,13 +34,14 @@ const RegistButton = ({ data, fecthData, handleDelete, setError }) => {
           setDialogOpen(false);
         }}
         title={!data ? "従業員登録(新規登録)" : `従業員登録(${data.id})`}
-        content={<UsersRegister selectedId={!data ? null : data.id} handleClose={handleClose} setError={setError} />} />
+        content={<UsersRegister selectedId={!data ? null : data.id} handleClose={handleClose} stateHandlers={stateHandlers} />} />
     </>
   );
 };
 
 // 従業員管理コンポーネント
-const UsersManagement = ({setError, setContentOnly}) => {
+const UsersManagement = ({stateHandlers}) => {
+  const { setError, setContentOnly, setIsLoading } = stateHandlers;
   useEffect(() => {
     setContentOnly(false);
   }, [setContentOnly]);
@@ -55,6 +56,7 @@ const UsersManagement = ({setError, setContentOnly}) => {
   // 検索イベント
   const searchSubmit = async () => {
     try {
+      setIsLoading(true);
       const params = new URLSearchParams({
         id: id ? id : "",
         name: userName ? userName : "",
@@ -80,12 +82,15 @@ const UsersManagement = ({setError, setContentOnly}) => {
       setUsersData(data);
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // 削除処理
   const handleDelete = async (deleteId) => {
     try {
+      setIsLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
           method: "DELETE",
@@ -106,6 +111,8 @@ const UsersManagement = ({setError, setContentOnly}) => {
       }
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -153,7 +160,7 @@ const UsersManagement = ({setError, setContentOnly}) => {
           </tr>
           <tr>
             <td colSpan="2">
-              <RegistButton data={null} fecthData={searchSubmit} />
+              <RegistButton data={null} fecthData={searchSubmit} stateHandlers={stateHandlers} />
             </td>
           </tr>
         </tbody>
@@ -178,7 +185,7 @@ const UsersManagement = ({setError, setContentOnly}) => {
                   <RegistButton data={data}
                     fecthData={searchSubmit}
                     handleDelete={() => handleDelete(data.id)}
-                    setError={setError} />
+                    stateHandlers={stateHandlers} />
                 </td>
               </tr>
             ))

@@ -6,7 +6,8 @@ import Message from "../components/Message";
 import { isHalfWidthNumberAndAlpha, isPassword, isEmailaddress, getUserIdFromToken } from "../utils";
 
 // 登録コンポーネント
-const UsersRegister = ({ selectedId, handleClose, setError }) => {
+const UsersRegister = ({ selectedId, handleClose, stateHandlers }) => {
+  const { setError, setContentOnly, setIsLoading } = stateHandlers;
   const { inputMaxLength } = useContext(AppSettingsContext);
   const { authToken } = useContext(AuthContext);
 
@@ -22,6 +23,7 @@ const UsersRegister = ({ selectedId, handleClose, setError }) => {
   // 入力項目の既存データ取得イベント
   const getInputData = async () => {
     try {
+      setIsLoading(true);
       const params = new URLSearchParams({
         id: id,
       });
@@ -48,12 +50,15 @@ const UsersRegister = ({ selectedId, handleClose, setError }) => {
       setRole(data.role);
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // 登録イベント
   const registSubmit = async () => {
     try {
+      setIsLoading(true);
       // 新規登録時はIDの重複チェック
       if (!selectedId) {
         const params = new URLSearchParams({
@@ -95,6 +100,8 @@ const UsersRegister = ({ selectedId, handleClose, setError }) => {
       handleClose();
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -106,6 +113,7 @@ const UsersRegister = ({ selectedId, handleClose, setError }) => {
   // 権限ドロップダウンの作成
   useEffect(() => {
     try {
+      setIsLoading(true);
       fetch(`${process.env.REACT_APP_API_BASE_URL}/master/roles`, {
           method: "GET",
           headers: {"Content-Type": "application/json",
@@ -115,8 +123,10 @@ const UsersRegister = ({ selectedId, handleClose, setError }) => {
         .then(data => setRoles(data));
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
-    }, []);
+  }, []);
 
   // 入力チェック
   useEffect(() => {

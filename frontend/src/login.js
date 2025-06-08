@@ -6,7 +6,8 @@ import { handleApiError } from "./errorHandler";
 import Message from "./components/Message";
 import { isHalfWidthNumberAndAlpha, isPassword } from "./utils";
 
-const Login = ({setError, setContentOnly}) => {
+const Login = ({stateHandlers}) => {
+  const { setError, setContentOnly, setIsLoading } = stateHandlers;
   useEffect(() => {
     setContentOnly(true);
   }, [setContentOnly]);
@@ -23,6 +24,7 @@ const Login = ({setError, setContentOnly}) => {
     e.preventDefault();
 
     try {
+      setIsLoading(true);
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,6 +45,8 @@ const Login = ({setError, setContentOnly}) => {
       navigate("/attendance");
     } catch(error) {
       setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
