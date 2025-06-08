@@ -1,4 +1,7 @@
 import React, { useContext, useState  } from 'react';
+import { FaClock, FaUsers } from "react-icons/fa";
+import { MdBarChart } from "react-icons/md";
+import { AiOutlineSchedule } from "react-icons/ai";
 import './App.css';
 import { BrowserRouter, Routes, Route, Link, useNavigate  } from "react-router-dom";
 import ErrorBoundary from "./ErrorBoundary";
@@ -24,9 +27,19 @@ const LogoutButton = () => {
   };
 
   return (
-    <button className="danger-button" onClick={handleLogout}>ログアウト</button>
+    <button className="danger-button logout-button" onClick={handleLogout}>ログアウト</button>
   );
 };
+
+// タイトルバー
+const Titlebar = () => {
+  return (
+    <header className="titlebar">
+      <h1 className="title">出退勤管理システム</h1>
+    </header>
+  );
+};
+
 
 // サイドメニューコンポーネント
 const Sidebar = () => {
@@ -34,10 +47,10 @@ const Sidebar = () => {
   
   return (
     <nav className="sidebar">
-      <Link to="/attendance">出退勤記録</Link>
-      {role === "00" ? null : <Link to="/attendance/totalization">勤務集計</Link>}
-      {role === "00" ? null : <Link to="/attendance/management">勤務管理</Link>}
-      {role === "00" ? null : <Link to="/users/management">従業員管理</Link>}
+      <Link to="/attendance"><FaClock />出退勤記録</Link>
+      {role === "00" ? null : <Link to="/attendance/totalization"><MdBarChart />勤務集計</Link>}
+      {role === "00" ? null : <Link to="/attendance/management"><AiOutlineSchedule />勤務管理</Link>}
+      {role === "00" ? null : <Link to="/users/management"><FaUsers />従業員管理</Link>}
     </nav>
   );
 };
@@ -60,6 +73,7 @@ function App() {
             )}
             {isContentOnly ? null : <Sidebar />}
             <main className="main-content">
+              <Titlebar />
               {isContentOnly ? null : <div className="right"><LogoutButton /></div>}
               <Routes>
                 <Route path="/" element={<Login stateHandlers={stateHandlers} />} />
