@@ -1,6 +1,8 @@
-import React, { useContext  } from 'react';
+import React, { useContext, useState  } from 'react';
 import './App.css';
-import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate  } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useNavigate  } from "react-router-dom";
+import ErrorBoundary from "./ErrorBoundary";
+import ErrorPage from "./ErrorPage";
 import { AuthContext } from "./AuthContext";
 import { AuthProvider } from "./AuthContext";
 import { getRoleFromToken } from "./utils";
@@ -10,12 +12,10 @@ import AttendanceTotalization from "./attendance/totalization";
 import AttendanceManagement from "./attendance/management";
 import UsersManagement from "./users/management";
 
+// ログアウトボタンコンポーネント
 const LogoutButton = () => {
   const { setAuthToken } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  const location = useLocation();
-  const isLoginPage = location.pathname === "/";
 
   const handleLogout = () => {
     setAuthToken(null);
@@ -23,17 +23,16 @@ const LogoutButton = () => {
     navigate("/");
   };
 
-  return isLoginPage ? null : (
+  return (
     <button className="danger-button" onClick={handleLogout}>ログアウト</button>
   );
 };
 
+// サイドメニューコンポーネント
 const Sidebar = () => {
-  const location = useLocation();
-  const isLoginPage = location.pathname === "/";
   const role = getRoleFromToken();
   
-  return isLoginPage ? null : (
+  return (
     <nav className="sidebar">
       <Link to="/attendance">出退勤記録</Link>
       {role === "00" ? null : <Link to="/attendance/totalization">勤務集計</Link>}
@@ -44,24 +43,29 @@ const Sidebar = () => {
 };
 
 function App() {
+  const [error, setError] = useState(null);
+  const [isContentOnly, setContentOnly] = useState(false);
+
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="app-container">
-          <Sidebar />
-          <main className="main-content">
-            <div className="right">
-              <LogoutButton />
-            </div>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/attendance" element={<Attendance />} />
-              <Route path="/attendance/totalization" element={<AttendanceTotalization />} />
-              <Route path="/attendance/management" element={<AttendanceManagement />} />
-              <Route path="/users/management" element={<UsersManagement />} />
-            </Routes>
-          </main>
-        </div>
+        <ErrorBoundary error={error}>
+          <div className="app-container">
+            {isContentOnly ? null : <Sidebar />}
+            <main className="main-content">
+              {isContentOnly ? null : <div className="right"><LogoutButton /></div>}
+              <Routes>
+                <Route path="/" element={<Login setError={setError} setContentOnly={setContentOnly} />} />
+                <Route path="/attendance" element={<Attendance setError={setError} setContentOnly={setContentOnly} />} />
+                <Route path="/attendance/totalization" element={<AttendanceTotalization setError={setError} setContentOnly={setContentOnly} />} />
+                <Route path="/attendance/management" element={<AttendanceManagement setError={setError} setContentOnly={setContentOnly} />} />
+                <Route path="/users/management" element={<UsersManagement setError={setError} setContentOnly={setContentOnly} />} />
+                <Route path="/error" element={<ErrorPage setContentOnly={setContentOnly} />} />
+                <Route path="*" element={<ErrorPage setContentOnly={setContentOnly} />} />
+              </Routes>
+            </main>
+          </div>
+        </ErrorBoundary>
       </BrowserRouter>
     </AuthProvider>
   );

@@ -7,7 +7,7 @@ import { handleApiError } from "../errorHandler";
 import UsersRegister from "./register";
 
 // 登録・修正ボタンコンポーネント
-const RegistButton = ({ data, fecthData, handleDelete }) => {
+const RegistButton = ({ data, fecthData, handleDelete, setError }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleClose = () => {
     setDialogOpen(false)
@@ -34,13 +34,17 @@ const RegistButton = ({ data, fecthData, handleDelete }) => {
           setDialogOpen(false);
         }}
         title={!data ? "従業員登録(新規登録)" : `従業員登録(${data.id})`}
-        content={<UsersRegister selectedId={!data ? null : data.id} handleClose={handleClose}/>} />
+        content={<UsersRegister selectedId={!data ? null : data.id} handleClose={handleClose} setError={setError} />} />
     </>
   );
 };
 
 // 従業員管理コンポーネント
-const UsersManagement = () => {
+const UsersManagement = ({setError, setContentOnly}) => {
+  useEffect(() => {
+    setContentOnly(false);
+  }, [setContentOnly]);
+
   const { authToken } = useContext(AuthContext);
 
   const [userId, setUserId] = useState(getUserIdFromToken());
@@ -50,50 +54,58 @@ const UsersManagement = () => {
 
   // 検索イベント
   const searchSubmit = async () => {
-    const params = new URLSearchParams({
-      id: id ? id : "",
-      name: userName ? userName : "",
-    });
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/users?${params.toString()}`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
+    try {
+      const params = new URLSearchParams({
+        id: id ? id : "",
+        name: userName ? userName : "",
+      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/users?${params.toString()}`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        }
+      );
+      if (response.status === 204) {
+        setUsersData([]);
+        return;
       }
-    );
-    if (response.status === 204) {
-      setUsersData([]);
-      return;
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        setUsersData([]);
+        return;
+      }
+      const data = await response.json();
+      setUsersData(data);
+    } catch(error) {
+      setError(error);
     }
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      setUsersData([]);
-      return;
-    }
-    const data = await response.json();
-    setUsersData(data);
   };
 
   // 削除処理
   const handleDelete = async (deleteId) => {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
-        method: "DELETE",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`},
-        body: JSON.stringify({
-          id: deleteId
-        }),
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
+          method: "DELETE",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`},
+          body: JSON.stringify({
+            id: deleteId
+          }),
+        }
+      );
+      if (response.status === 204) {
+        return;
       }
-    );
-    if (response.status === 204) {
-      return;
-    }
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      return;
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        return;
+      }
+    } catch(error) {
+      setError(error);
     }
   };
 
@@ -165,7 +177,8 @@ const UsersManagement = () => {
                 <td className="center">
                   <RegistButton data={data}
                     fecthData={searchSubmit}
-                    handleDelete={() => handleDelete(data.id)} />
+                    handleDelete={() => handleDelete(data.id)}
+                    setError={setError} />
                 </td>
               </tr>
             ))

@@ -6,7 +6,7 @@ import Message from "../components/Message";
 import { isHalfWidthNumberAndAlpha, isPassword, isEmailaddress, getUserIdFromToken } from "../utils";
 
 // 登録コンポーネント
-const UsersRegister = ({ selectedId, handleClose }) => {
+const UsersRegister = ({ selectedId, handleClose, setError }) => {
   const { inputMaxLength } = useContext(AppSettingsContext);
   const { authToken } = useContext(AuthContext);
 
@@ -21,36 +21,7 @@ const UsersRegister = ({ selectedId, handleClose }) => {
 
   // 入力項目の既存データ取得イベント
   const getInputData = async () => {
-    const params = new URLSearchParams({
-      id: id,
-    });
-    const reaponse = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/users/id?${params.toString()}`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
-      }
-    );
-    if (reaponse.status === 204) {
-      return;
-    }
-    if (!reaponse.ok) {
-      const errorResponse = await reaponse.json();
-      handleApiError(errorResponse);
-      return;
-    }
-    const data = await reaponse.json();
-    setId(data.id);
-    setPassword(data.password);
-    setName(data.name);
-    setEmail(data.email);
-    setRole(data.role);
-  };
-
-  // 登録イベント
-  const registSubmit = async () => {
-    // 新規登録時はIDの重複チェック
-    if (!selectedId) {
+    try {
       const params = new URLSearchParams({
         id: id,
       });
@@ -61,33 +32,70 @@ const UsersRegister = ({ selectedId, handleClose }) => {
             "Authorization": `Bearer ${authToken}`}
         }
       );
-      if (reaponse.status !== 204) {
-        alert("入力されたIDはすでに登録されています");
+      if (reaponse.status === 204) {
         return;
       }
+      if (!reaponse.ok) {
+        const errorResponse = await reaponse.json();
+        handleApiError(errorResponse);
+        return;
+      }
+      const data = await reaponse.json();
+      setId(data.id);
+      setPassword(data.password);
+      setName(data.name);
+      setEmail(data.email);
+      setRole(data.role);
+    } catch(error) {
+      setError(error);
     }
+  };
 
-    // 登録処理
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}` },
-      body: JSON.stringify({
-        id: id,
-        password: password,
-        name: name,
-        email: email,
-        role: role,
-       }),
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      alert(`Error: ${errorMessage}`);
-      return;
+  // 登録イベント
+  const registSubmit = async () => {
+    try {
+      // 新規登録時はIDの重複チェック
+      if (!selectedId) {
+        const params = new URLSearchParams({
+          id: id,
+        });
+        const reaponse = await fetch(
+          `${process.env.REACT_APP_API_BASE_URL}/manage/users/id?${params.toString()}`, {
+            method: "GET",
+            headers: {"Content-Type": "application/json",
+              "Authorization": `Bearer ${authToken}`}
+          }
+        );
+        if (reaponse.status !== 204) {
+          alert("入力されたIDはすでに登録されています");
+          return;
+        }
+      }
+
+      // 登録処理
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}` },
+        body: JSON.stringify({
+          id: id,
+          password: password,
+          name: name,
+          email: email,
+          role: role,
+        }),
+      });
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        alert(`Error: ${errorMessage}`);
+        return;
+      }
+      const message = await response.text();
+      alert(message);
+      handleClose();
+    } catch(error) {
+      setError(error);
     }
-    const message = await response.text();
-    alert(message);
-    handleClose();
   };
 
   // 初期データ取得
@@ -97,13 +105,17 @@ const UsersRegister = ({ selectedId, handleClose }) => {
 
   // 権限ドロップダウンの作成
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/master/roles`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
-      })
-      .then(res => res.json())
-      .then(data => setRoles(data));
+    try {
+      fetch(`${process.env.REACT_APP_API_BASE_URL}/master/roles`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        })
+        .then(res => res.json())
+        .then(data => setRoles(data));
+    } catch(error) {
+      setError(error);
+    }
     }, []);
 
   // 入力チェック

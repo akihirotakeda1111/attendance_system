@@ -4,7 +4,11 @@ import { toYMDHMS, isHalfWidthNumber, getUserIdFromToken } from "./utils";
 import { handleApiError } from "./errorHandler";
 
 // 出退勤登録コンポーネント
-const Attendance = () => {
+const Attendance = ({setError, setContentOnly}) => {
+  useEffect(() => {
+    setContentOnly(false);
+  }, [setContentOnly]);
+
   const { authToken } = useContext(AuthContext);
   
   const [userId, setUserId] = useState(getUserIdFromToken());
@@ -16,154 +20,182 @@ const Attendance = () => {
 
   // 当日の出勤情報取得イベント
   const fetchTodayAttendance = useCallback(async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/attendance/today?userId=${userId}`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/attendance/today?userId=${userId}`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        }
+      );
+      if (response.status === 204) {
+        setTodayAttendance(null);
+        return;
       }
-    );
-    if (response.status === 204) {
-      setTodayAttendance(null);
-      return;
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        setTodayAttendance(null);
+        return;
+      }
+      const data = await response.json();
+      setTodayAttendance(data);
+    } catch(error) {
+      setError(error);
     }
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      setTodayAttendance(null);
-      return;
-    }
-    const data = await response.json();
-    setTodayAttendance(data);
   }, [userId]);
 
   // 最新の出勤情報取得イベント
   const fetchLatestAttendance = useCallback(async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/attendance/latest?userId=${userId}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`}
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/attendance/latest?userId=${userId}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`}
+        }
+      );
+      if (response.status === 204) {
+        setLatestAttendance(null);
+        return;
       }
-    );
-    if (response.status === 204) {
-      setLatestAttendance(null);
-      return;
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        setLatestAttendance(null);
+        return;
+      }
+      const data = await response.json();
+      setLatestAttendance(data);
+    } catch(error) {
+      setError(error);
     }
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      setLatestAttendance(null);
-      return;
-    }
-    const data = await response.json();
-    setLatestAttendance(data);
   }, [userId]);
 
   // 最新の休憩情報取得イベント
   const fetchLatestBreaktime = useCallback(async () => {
     if (!latestAttendance) return;
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/breaktime/latest?userId=${userId}&date=${latestAttendance.date}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`}
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/breaktime/latest?userId=${userId}&date=${latestAttendance.date}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`}
+        }
+      );
+      if (response.status === 204) {
+        setLatestBreaktime(null);
+        return;
       }
-    );
-    if (response.status === 204) {
-      setLatestBreaktime(null);
-      return;
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        setLatestBreaktime(null);
+        return;
+      }
+      const data = await response.json();
+      setLatestBreaktime(data);
+    } catch(error) {
+      setError(error);
     }
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      setLatestBreaktime(null);
-      return;
-    }
-    const data = await response.json();
-    setLatestBreaktime(data);
   }, [userId, latestAttendance]);
 
   // 出勤時刻登録イベント
   const attendanceStartSubmit = async () => {
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}` },
-      body: JSON.stringify({ userId }),
-    });
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      return;
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}` },
+        body: JSON.stringify({ userId }),
+      });
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        return;
+      }
+      const message = await response.text();
+      alert(message);
+      fetchTodayAttendance();
+      fetchLatestAttendance();
+    } catch(error) {
+      setError(error);
     }
-    const message = await response.text();
-    alert(message);
-    fetchTodayAttendance();
-    fetchLatestAttendance();
   };
 
   // 退勤時刻登録イベント
   const attendanceEndSubmit = async () => {
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}` },
-      body: JSON.stringify({ userId }),
-    });
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      return;
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}` },
+        body: JSON.stringify({ userId }),
+      });
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        return;
+      }
+      const message = await response.text();
+      alert(message);
+      fetchTodayAttendance();
+      fetchLatestAttendance();
+    } catch(error) {
+      setError(error);
     }
-    const message = await response.text();
-    alert(message);
-    fetchTodayAttendance();
-    fetchLatestAttendance();
   };
 
   // 休憩開始時刻登録イベント
   const breaktimeStartSubmit = async () => {
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}` },
-      body: JSON.stringify({
-        userId: userId,
-        date: latestAttendance.date,
-        minute: minute === "" ? 0 : parseInt(minute),
-       }),
-    });
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      return;
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}` },
+        body: JSON.stringify({
+          userId: userId,
+          date: latestAttendance.date,
+          minute: minute === "" ? 0 : parseInt(minute),
+        }),
+      });
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        return;
+      }
+      const message = await response.text();
+      alert(message);
+      fetchLatestBreaktime();
+    } catch(error) {
+      setError(error);
     }
-    const message = await response.text();
-    alert(message);
-    fetchLatestBreaktime();
   };
 
   // 休憩終了時刻登録イベント
   const breaktimeEndSubmit = async () => {
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}` },
-      body: JSON.stringify({
-        userId: userId,
-        date: latestAttendance.date,
-       }),
-    });
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      return;
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/breaktime`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}` },
+        body: JSON.stringify({
+          userId: userId,
+          date: latestAttendance.date,
+        }),
+      });
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        return;
+      }
+      const message = await response.text();
+      alert(message);
+      fetchLatestBreaktime();
+    } catch(error) {
+      setError(error);
     }
-    const message = await response.text();
-    alert(message);
-    fetchLatestBreaktime();
   };
 
   // 現在日時の更新

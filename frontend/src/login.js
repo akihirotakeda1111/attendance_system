@@ -6,7 +6,11 @@ import { handleApiError } from "./errorHandler";
 import Message from "./components/Message";
 import { isHalfWidthNumberAndAlpha, isPassword } from "./utils";
 
-const Login = () => {
+const Login = ({setError, setContentOnly}) => {
+  useEffect(() => {
+    setContentOnly(true);
+  }, [setContentOnly]);
+
   const { inputMaxLength } = useContext(AppSettingsContext);
   const { setAuthToken } = useContext(AuthContext);
 
@@ -18,24 +22,28 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: id,
-        password: password,
-      }),
-    });
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: id,
+          password: password,
+        }),
+      });
 
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      return;
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        return;
+      }
+
+      const data = await response.json();
+      setAuthToken(data.token);
+      navigate("/attendance");
+    } catch(error) {
+      setError(error);
     }
-
-    const data = await response.json();
-    setAuthToken(data.token);
-    navigate("/attendance");
   };
 
   // 入力チェック

@@ -48,7 +48,7 @@ const DataCell = ({ breaktimeData }) => {
 };
 
 // 修正・登録ボタンコンポーネント
-const RegistButton = ({ data, fecthData, handleDelete }) => {
+const RegistButton = ({ data, fecthData, handleDelete, setError }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleClose = () => {
     setDialogOpen(false)
@@ -75,13 +75,17 @@ const RegistButton = ({ data, fecthData, handleDelete }) => {
           setDialogOpen(false);
         }}
         title={`勤務登録(${data.date})`}
-        content={<AttendanceRegister date={data.date} handleClose={handleClose}/>} />
+        content={<AttendanceRegister date={data.date} handleClose={handleClose} setError={setError} />} />
     </>
   );
 };
 
 // 勤務管理コンポーネント
-const AttendanceManagement = () => {
+const AttendanceManagement = ({setError, setContentOnly}) => {
+  useEffect(() => {
+    setContentOnly(false);
+  }, [setContentOnly]);
+
   const { authToken } = useContext(AuthContext);
 
   const now = new Date();
@@ -120,109 +124,121 @@ const AttendanceManagement = () => {
 
   // 検索イベント
   const searchSubmit = async () => {
-    const params = new URLSearchParams({
-      year: year,
-      month: month,
-      userId: userId,
-    });
-    const responseAttendance = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance?${params.toString()}`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
+    try {
+      const params = new URLSearchParams({
+        year: year,
+        month: month,
+        userId: userId,
+      });
+      const responseAttendance = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/attendance?${params.toString()}`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        }
+      );
+      if (responseAttendance.status === 204) {
+        setWorkingData(getWorkingData(null, null, null));
+        return;
       }
-    );
-    if (responseAttendance.status === 204) {
-      setWorkingData(getWorkingData(null, null, null));
-      return;
-    }
-    if (!responseAttendance.ok) {
-      const errorResponse = await responseAttendance.json();
-      handleApiError(errorResponse);
-      setWorkingData(getWorkingData(null, null, null));
-      return;
-    }
-    const attendanceData = await responseAttendance.json();
+      if (!responseAttendance.ok) {
+        const errorResponse = await responseAttendance.json();
+        handleApiError(errorResponse);
+        setWorkingData(getWorkingData(null, null, null));
+        return;
+      }
+      const attendanceData = await responseAttendance.json();
 
-    const responseBreaktime = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime?${params.toString()}`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
+      const responseBreaktime = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime?${params.toString()}`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        }
+      );
+      if (responseBreaktime.status === 204) {
+        setWorkingData(getWorkingData(attendanceData, null, null));
+        return;
       }
-    );
-    if (responseBreaktime.status === 204) {
-      setWorkingData(getWorkingData(attendanceData, null, null));
-      return;
-    }
-    if (!responseBreaktime.ok) {
-      const errorResponse = await responseBreaktime.json();
-      handleApiError(errorResponse);
-      setWorkingData(getWorkingData(attendanceData, null, null));
-      return;
-    }
-    const breaktimeData = await responseBreaktime.json();
+      if (!responseBreaktime.ok) {
+        const errorResponse = await responseBreaktime.json();
+        handleApiError(errorResponse);
+        setWorkingData(getWorkingData(attendanceData, null, null));
+        return;
+      }
+      const breaktimeData = await responseBreaktime.json();
 
-    const worktimeParams = new URLSearchParams({
-      monthly: false,
-      weekly: false,
-      year: year,
-      month: month,
-      userId: userId,
-    });
-    const worktimeResponse = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${worktimeParams.toString()}`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
+      const worktimeParams = new URLSearchParams({
+        monthly: false,
+        weekly: false,
+        year: year,
+        month: month,
+        userId: userId,
+      });
+      const worktimeResponse = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/totalization?${worktimeParams.toString()}`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        }
+      );
+      if (worktimeResponse.status === 204) {
+        setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
+        return;
       }
-    );
-    if (worktimeResponse.status === 204) {
-      setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
-      return;
+      if (!worktimeResponse.ok) {
+        const errorResponse = await worktimeResponse.json();
+        handleApiError(errorResponse);
+        setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
+        return;
+      }
+      const workTimeData = await worktimeResponse.json();
+      setWorkingData(getWorkingData(attendanceData, breaktimeData, workTimeData));
+    } catch(error) {
+      setError(error);
     }
-    if (!worktimeResponse.ok) {
-      const errorResponse = await worktimeResponse.json();
-      handleApiError(errorResponse);
-      setWorkingData(getWorkingData(attendanceData, breaktimeData, null));
-      return;
-    }
-    const workTimeData = await worktimeResponse.json();
-    setWorkingData(getWorkingData(attendanceData, breaktimeData, workTimeData));
   };
 
   // 削除処理
   const handleDelete = async (deleteId, deleteDate) => {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
-        method: "DELETE",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`},
-        body: JSON.stringify({
-          userId: deleteId,
-          date: deleteDate
-        }),
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
+          method: "DELETE",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`},
+          body: JSON.stringify({
+            userId: deleteId,
+            date: deleteDate
+          }),
+        }
+      );
+      if (response.status === 204) {
+        return;
       }
-    );
-    if (response.status === 204) {
-      return;
-    }
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      handleApiError(errorResponse);
-      return;
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        handleApiError(errorResponse);
+        return;
+      }
+    } catch(error) {
+      setError(error);
     }
   };
 
   // ユーザードロップダウンの作成
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
-      })
-      .then(res => res.json())
-      .then(data => setUsers(data));
+    try {
+      fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        })
+        .then(res => res.json())
+        .then(data => setUsers(data));
+    } catch(error) {
+      setError(error);
+    }
   }, []);
 
   // 初期検索の実行
@@ -284,7 +300,8 @@ const AttendanceManagement = () => {
                 <td className="center">
                   <RegistButton data={data}
                     fecthData={searchSubmit}
-                    handleDelete={() => handleDelete(data.userId, data.date)} />
+                    handleDelete={() => handleDelete(data.userId, data.date)}
+                    setError={setError} />
                 </td>
               </tr>
             ))

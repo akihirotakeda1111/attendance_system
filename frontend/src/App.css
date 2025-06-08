@@ -20,6 +20,13 @@
 }
 /* メニューバー end */
 
+/* エラー画面レイアウト start */
+.error-container {
+  text-align: center;
+  margin-top: 50px;
+}
+/* エラー画面レイアウト end */
+
 /* 共通レイアウト start */
 html {
   font-size: 80%;

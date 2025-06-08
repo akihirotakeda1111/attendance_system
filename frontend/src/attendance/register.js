@@ -96,7 +96,7 @@ const InputBreaktime = ({ breaktimes, setBreaktimes }) => {
 };
 
 // 勤務登録コンポーネント
-const AttendanceRegister = ({ date, handleClose }) => {
+const AttendanceRegister = ({ date, handleClose, setError }) => {
   class DateValue {
     constructor(date) {
       this.year = date.getFullYear();
@@ -127,110 +127,118 @@ const AttendanceRegister = ({ date, handleClose }) => {
 
   // 入力項目の既存データ取得イベント
   const getInputData = async () => {
-    const params = new URLSearchParams({
-      date: date,
-      userId: userId
-    });
-    const responseAttendance = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/attendance/date?${params.toString()}`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
+    try {
+      const params = new URLSearchParams({
+        date: date,
+        userId: userId
+      });
+      const responseAttendance = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/attendance/date?${params.toString()}`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        }
+      );
+      if (responseAttendance.status === 204) {
+        return;
       }
-    );
-    if (responseAttendance.status === 204) {
-      return;
-    }
-    if (!responseAttendance.ok) {
-      const errorResponse = await responseAttendance.json();
-      handleApiError(errorResponse);
-      return;
-    }
-    const attendanceData = await responseAttendance.json();
-    setAttendanceStartDate(new DateValue(new Date(attendanceData.startTime)))
-    setAttendanceEndDate(new DateValue(
-      attendanceData.endTime ? new Date(attendanceData.endTime) : new Date(now)))
+      if (!responseAttendance.ok) {
+        const errorResponse = await responseAttendance.json();
+        handleApiError(errorResponse);
+        return;
+      }
+      const attendanceData = await responseAttendance.json();
+      setAttendanceStartDate(new DateValue(new Date(attendanceData.startTime)))
+      setAttendanceEndDate(new DateValue(
+        attendanceData.endTime ? new Date(attendanceData.endTime) : new Date(now)))
 
-    const responseBreaktime = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime/date?${params.toString()}`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`}
+      const responseBreaktime = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime/date?${params.toString()}`, {
+          method: "GET",
+          headers: {"Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`}
+        }
+      );
+      if (responseBreaktime.status === 204) {
+        setBreaktimes([]);
+        return;
       }
-    );
-    if (responseBreaktime.status === 204) {
-      setBreaktimes([]);
-      return;
+      if (!responseBreaktime.ok) {
+        const errorResponse = await responseBreaktime.json();
+        handleApiError(errorResponse);
+        setBreaktimes([]);
+        return;
+      }
+      
+      const breaktimeData = await responseBreaktime.json();
+      let tmpBreaktimeData = breaktimeData.map(b => ({
+        startDate: new DateValue(new Date(b.startTime)),
+        endDate: new DateValue(new Date(
+          b.endTime ? new Date(b.endTime) : new Date(now)))
+      }));
+      setBreaktimes(tmpBreaktimeData);
+    } catch(error) {
+      setError(error);
     }
-    if (!responseBreaktime.ok) {
-      const errorResponse = await responseBreaktime.json();
-      handleApiError(errorResponse);
-      setBreaktimes([]);
-      return;
-    }
-    
-    const breaktimeData = await responseBreaktime.json();
-    let tmpBreaktimeData = breaktimeData.map(b => ({
-      startDate: new DateValue(new Date(b.startTime)),
-      endDate: new DateValue(new Date(
-        b.endTime ? new Date(b.endTime) : new Date(now)))
-    }));
-    setBreaktimes(tmpBreaktimeData);
   };
 
   // 登録イベント
   const registSubmit = async () => {
-    const attendansResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}` },
-      body: JSON.stringify({
-        userId: userId,
-        date: date,
-        startTime: attendanceStartDate.toString(),
-        endTime: attendanceEndDate.toString(),
-       }),
-    });
-    if (!attendansResponse.ok) {
-      const errorMessage = await attendansResponse.text();
-      alert(`Error: ${errorMessage}`);
-      return;
-    }
-    const attendanceMessage = await attendansResponse.text();
-    alert(attendanceMessage);
-
-    const breaktimeRequest = Array.isArray(breaktimes) && breaktimes.length > 0 ?
-      breaktimes.map((b, i) => ({
-        userId: userId,
-        date: date,
-        number: i+1,
-        startTime: b.startDate.toString(),
-        endTime: b.endDate.toString(),
-        expectedEndTime: null
-      })) : [
-        {
+    try {
+      const attendansResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}` },
+        body: JSON.stringify({
           userId: userId,
           date: date,
-          number: 0,
-          startTime: null,
-          endTime: null,
+          startTime: attendanceStartDate.toString(),
+          endTime: attendanceEndDate.toString(),
+        }),
+      });
+      if (!attendansResponse.ok) {
+        const errorMessage = await attendansResponse.text();
+        alert(`Error: ${errorMessage}`);
+        return;
+      }
+      const attendanceMessage = await attendansResponse.text();
+      alert(attendanceMessage);
+
+      const breaktimeRequest = Array.isArray(breaktimes) && breaktimes.length > 0 ?
+        breaktimes.map((b, i) => ({
+          userId: userId,
+          date: date,
+          number: i+1,
+          startTime: b.startDate.toString(),
+          endTime: b.endDate.toString(),
           expectedEndTime: null
-        }
-      ];
-    const breaktimeResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/breaktime`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}` },
-      body: JSON.stringify(breaktimeRequest),
-    });
-    if (!breaktimeResponse.ok) {
-      const errorMessage = await breaktimeResponse.text();
-      alert(`Error: ${errorMessage}`);
-      return;
+        })) : [
+          {
+            userId: userId,
+            date: date,
+            number: 0,
+            startTime: null,
+            endTime: null,
+            expectedEndTime: null
+          }
+        ];
+      const breaktimeResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/breaktime`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}` },
+        body: JSON.stringify(breaktimeRequest),
+      });
+      if (!breaktimeResponse.ok) {
+        const errorMessage = await breaktimeResponse.text();
+        alert(`Error: ${errorMessage}`);
+        return;
+      }
+      const breaktimeMessage = await breaktimeResponse.text();
+      alert(breaktimeMessage);
+      handleClose();
+    } catch(error) {
+      setError(error);
     }
-    const breaktimeMessage = await breaktimeResponse.text();
-    alert(breaktimeMessage);
-    handleClose();
   };
 
   // 初期データ取得
