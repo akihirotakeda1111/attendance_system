@@ -96,7 +96,7 @@ const InputBreaktime = ({ breaktimes, setBreaktimes }) => {
 };
 
 // 勤務登録コンポーネント
-const AttendanceRegister = ({ date, handleClose, setError }) => {
+const AttendanceRegister = ({ date, selectedUserId, handleClose, setError }) => {
   class DateValue {
     constructor(date) {
       this.year = date.getFullYear();
@@ -130,7 +130,7 @@ const AttendanceRegister = ({ date, handleClose, setError }) => {
     try {
       const params = new URLSearchParams({
         date: date,
-        userId: userId
+        userId: selectedUserId
       });
       const responseAttendance = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/manage/attendance/date?${params.toString()}`, {
@@ -190,7 +190,7 @@ const AttendanceRegister = ({ date, handleClose, setError }) => {
         headers: { "Content-Type": "application/json",
             "Authorization": `Bearer ${authToken}` },
         body: JSON.stringify({
-          userId: userId,
+          userId: selectedUserId,
           date: date,
           startTime: attendanceStartDate.toString(),
           endTime: attendanceEndDate.toString(),
@@ -206,7 +206,7 @@ const AttendanceRegister = ({ date, handleClose, setError }) => {
 
       const breaktimeRequest = Array.isArray(breaktimes) && breaktimes.length > 0 ?
         breaktimes.map((b, i) => ({
-          userId: userId,
+          userId: selectedUserId,
           date: date,
           number: i+1,
           startTime: b.startDate.toString(),
@@ -214,7 +214,7 @@ const AttendanceRegister = ({ date, handleClose, setError }) => {
           expectedEndTime: null
         })) : [
           {
-            userId: userId,
+            userId: selectedUserId,
             date: date,
             number: 0,
             startTime: null,

@@ -48,7 +48,7 @@ const DataCell = ({ breaktimeData }) => {
 };
 
 // 修正・登録ボタンコンポーネント
-const RegistButton = ({ data, fecthData, handleDelete, setError }) => {
+const RegistButton = ({ data, selectedUserId, fecthData, handleDelete, setError }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleClose = () => {
     setDialogOpen(false)
@@ -74,8 +74,9 @@ const RegistButton = ({ data, fecthData, handleDelete, setError }) => {
           handleDelete();
           setDialogOpen(false);
         }}
-        title={`勤務登録(${data.date})`}
-        content={<AttendanceRegister date={data.date} handleClose={handleClose} setError={setError} />} />
+        title={`勤務登録(${selectedUserId} ${data.date})`}
+        content={<AttendanceRegister date={data.date} selectedUserId={selectedUserId}
+          handleClose={handleClose} setError={setError} />} />
     </>
   );
 };
@@ -93,6 +94,7 @@ const AttendanceManagement = ({setError, setContentOnly}) => {
   const currentMonth = String(now.getMonth() + 1);
 
   const [userId, setUserId] = useState(getUserIdFromToken());
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [year, setYear] = useState(currentYear);
   const [month, setMonth] = useState(currentMonth);
   const [users, setUsers] = useState();
@@ -124,6 +126,8 @@ const AttendanceManagement = ({setError, setContentOnly}) => {
 
   // 検索イベント
   const searchSubmit = async () => {
+    setSelectedUserId(userId);
+
     try {
       const params = new URLSearchParams({
         year: year,
@@ -299,6 +303,7 @@ const AttendanceManagement = ({setError, setContentOnly}) => {
                 <td className="center">{data.workHours}</td>
                 <td className="center">
                   <RegistButton data={data}
+                    selectedUserId={selectedUserId}
                     fecthData={searchSubmit}
                     handleDelete={() => handleDelete(data.userId, data.date)}
                     setError={setError} />
