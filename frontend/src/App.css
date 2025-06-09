@@ -175,6 +175,12 @@ span {
   white-space: nowrap;
 
 }
+
+.table-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
 /* テーブルレイアウト end */
 
 /* ボタンレイアウト start */

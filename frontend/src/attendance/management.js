@@ -3,15 +3,13 @@ import { AuthContext } from "../AuthContext";
 import { YearDropdown, MonthDropdown } from "../components/Dropdown";
 import CommonDialog from "../components/CommonDialog";
 import Message from "../components/Message";
-import { getDaysInMonth, toYMDHMS, getDiffHours, getUserIdFromToken } from "../utils";
+import { getDaysInMonth, toYMDHMS, getDiffHours, getUserIdFromToken, exportToCSV } from "../utils";
 import { handleApiError } from "../errorHandler";
 import AttendanceRegister from "./register";
 
 // 休憩情報のセルコンポーネント
-const DataCell = ({ breaktimeData }) => {
+const DataCell = ({ breaktimeData, breaktimeHours }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const breaktimeHours = breaktimeData && breaktimeData.length > 0 ?
-    breaktimeData.reduce((sum, item) => sum + getDiffHours(item.startTime, item.endTime), 0) : 0;
 
   return (
     <>
@@ -27,7 +25,7 @@ const DataCell = ({ breaktimeData }) => {
           color: breaktimeData.length > 0 ? "blue" : "gray"
         }}
       >
-        {breaktimeData.length > 0 ? `${breaktimeHours.toFixed(2)}h(${breaktimeData.length}件)` : "-"}
+        {breaktimeData.length > 0 ? `${breaktimeHours}h(${breaktimeData.length}件)` : "-"}
       </a>
       
       <CommonDialog
@@ -119,6 +117,8 @@ const AttendanceManagement = ({stateHandlers}) => {
         startTime: attendance && attendance.length > 0 ? attendance[0].startTime : "-",
         endTime: attendance && attendance.length > 0 ? attendance[0].endTime : "-",
         breaktimeData: breaktimes && breaktimes.length > 0 ? breaktimes : [],
+        breaktimeHours: breaktimes && breaktimes.length > 0 ?
+          breaktimes.reduce((sum, item) => sum + getDiffHours(item.startTime, item.endTime), 0).toFixed(2) : 0,
         workHours: worktime && worktime.length > 0 ? worktime[0].hours.toFixed(2) : "-",
       };
     });
@@ -293,6 +293,15 @@ const AttendanceManagement = ({stateHandlers}) => {
           </tr>
         </tbody>
       </table>
+      {Array.isArray(workingData) && workingData.length > 0 ? (
+        <div className="table-header">
+          <button onClick={() => exportToCSV(
+              ['date', 'startTime', 'endTime', 'breaktimeHours', 'workHours'],
+              workingData, `${selectedUserId}_${year}-${month}_WorkingData`)}>
+            CSV出力
+          </button>
+        </div>
+      ) : null}
       <table className="table-layout">
         <tbody>
           <tr>
@@ -309,7 +318,10 @@ const AttendanceManagement = ({stateHandlers}) => {
                 <td className="center">{data.date}</td>
                 <td className="center">{toYMDHMS(data.startTime)}</td>
                 <td className="center">{toYMDHMS(data.endTime)}</td>
-                <td className="center"><DataCell breaktimeData={data.breaktimeData} /></td>
+                <td className="center">
+                  <DataCell breaktimeData={data.breaktimeData}
+                    breaktimeHours={data.breaktimeHours} />
+                </td>
                 <td className="center">{data.workHours}</td>
                 <td className="center">
                   <RegistButton data={data}

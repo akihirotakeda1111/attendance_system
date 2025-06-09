@@ -1,6 +1,7 @@
 import { getWeek } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 
+/* 取得関数 */
 // tokenから権限を取得
 export const getRoleFromToken = () => {
   const token = localStorage.getItem("authToken");
@@ -22,52 +23,6 @@ export const getUserIdFromToken = () => {
     return decoded.sub || null;
   }
 };
-
-// 日付を登録形式の文字列に変換する
-export function toRegistDateStr(year, month, day, hour, minute) {
-    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
-}
-
-// ISO形式を"yyyy-mm-dd hh:mm:ss"に変換する
-export function toYMDHMS(dateTimeStr) {
-    let retVal = dateTimeStr;
-    if (dateTimeStr && isISOTimeStr(dateTimeStr)) {
-        const date = new Date(dateTimeStr);
-        const yyyy = date.getFullYear();
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const dd = String(date.getDate()).padStart(2, "0");
-        const hh = String(date.getHours()).padStart(2, "0");
-        const mi = String(date.getMinutes()).padStart(2, "0");
-        const ss = String(date.getSeconds()).padStart(2, "0");
-        retVal = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
-    }
-    return retVal;
-}
-
-// ISO形式の日付文字か判定する
-export function isISOTimeStr(dateTimeStr) {
-    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateTimeStr);
-}
-
-// 半角数字か判定する
-export function isHalfWidthNumber(str) {
-    return /^[0-9]+$/.test(str);
-}
-
-// 半角英数字か判定する
-export function isHalfWidthNumberAndAlpha(str) {
-    return /^[a-zA-Z0-9]+$/.test(str);
-}
-
-// パスワードの形式が判定する
-export function isPassword(str) {
-    return /^[a-zA-Z\d@$!%*?&]+$/.test(str);
-}
-
-// メールアドレスの形式か判定する
-export function isEmailaddress(str) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
-}
 
 // 月の週番号を取得する
 export function getWeeksInMonth(year, month) {
@@ -104,6 +59,54 @@ export function getDiffHours(dateStr1, dateStr2) {
     retVal = diffMs / (1000 * 60 * 60);
   }
   return retVal;
+}
+
+/* 変換関数 */
+// 日付を登録形式の文字列に変換する
+export function toRegistDateStr(year, month, day, hour, minute) {
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+}
+
+// ISO形式を"yyyy-mm-dd hh:mm:ss"に変換する
+export function toYMDHMS(dateTimeStr) {
+    let retVal = dateTimeStr;
+    if (dateTimeStr && isISOTimeStr(dateTimeStr)) {
+        const date = new Date(dateTimeStr);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        const hh = String(date.getHours()).padStart(2, "0");
+        const mi = String(date.getMinutes()).padStart(2, "0");
+        const ss = String(date.getSeconds()).padStart(2, "0");
+        retVal = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    }
+    return retVal;
+}
+
+/* 入力チェック関数 */
+// ISO形式の日付文字か判定する
+export function isISOTimeStr(dateTimeStr) {
+    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateTimeStr);
+}
+
+// 半角数字か判定する
+export function isHalfWidthNumber(str) {
+    return /^[0-9]+$/.test(str);
+}
+
+// 半角英数字か判定する
+export function isHalfWidthNumberAndAlpha(str) {
+    return /^[a-zA-Z0-9]+$/.test(str);
+}
+
+// パスワードの形式が判定する
+export function isPassword(str) {
+    return /^[a-zA-Z\d@$!%*?&]+$/.test(str);
+}
+
+// メールアドレスの形式か判定する
+export function isEmailaddress(str) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
 }
 
 // 2つの期間が完全に重なっているか判定する
@@ -154,4 +157,23 @@ export function isStartToEnd(dateStr1, dateStr2) {
     isStartToEnd = date1 < date2;
   }
   return isStartToEnd;
+}
+
+/* 出力関数 */
+export function exportToCSV(headers, data, filename) {
+  const csvContent = [
+    headers,
+    ...data.map(row => headers.map(header => row[header])),
+  ]
+  .map(row => row.join(","))
+  .join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
