@@ -1,7 +1,7 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo } from "react";
 import { AuthContext } from "../AuthContext";
 import CommonDialog from "../components/CommonDialog";
-import Message from "../components/Message";
+import TableWithPaging from "../components/TableWithPaging";
 import { isHalfWidthNumberAndAlpha, getUserIdFromToken } from "../utils";
 import { handleApiError } from "../errorHandler";
 import UsersRegister from "./register";
@@ -121,6 +121,26 @@ const UsersManagement = ({stateHandlers}) => {
     searchSubmit();
   }, []);
 
+  const thCols = ["ID", "氏名", "メールアドレス", "権限", "修正"];
+  const tdRows = useMemo(() => {
+    return usersData.map((data, index) => (
+      <tr key={index}>
+        <td className="center">{data.id}</td>
+        <td className="center">{data.name}</td>
+        <td className="center">{data.email}</td>
+        <td className="center">{data.role}</td>
+        <td className="center">
+          <RegistButton
+            data={data}
+            fecthData={searchSubmit}
+            handleDelete={() => handleDelete(data.id)}
+            stateHandlers={stateHandlers}
+          />
+        </td>
+      </tr>
+    ));
+  }, [usersData]);
+  
   return (
     <div>
       <h2>従業員管理</h2>
@@ -165,39 +185,7 @@ const UsersManagement = ({stateHandlers}) => {
           </tr>
         </tbody>
       </table>
-      <table className="table-layout">
-        <tbody>
-          <tr>
-            <th className="center">ID</th>
-            <th className="center">氏名</th>
-            <th className="center">メールアドレス</th>
-            <th className="center">権限</th>
-            <th className="center">修正</th>
-          </tr>
-          {Array.isArray(usersData) && usersData.length > 0 ? (
-            usersData.map((data, index) => (
-              <tr key={index}>
-                <td className="center">{data.id}</td>
-                <td className="center">{data.name}</td>
-                <td className="center">{data.email}</td>
-                <td className="center">{data.role}</td>
-                <td className="center">
-                  <RegistButton data={data}
-                    fecthData={searchSubmit}
-                    handleDelete={() => handleDelete(data.id)}
-                    stateHandlers={stateHandlers} />
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5">
-                <Message type="noData" />
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <TableWithPaging thCols={thCols} tdRows={tdRows} />
     </div>
   );
 };

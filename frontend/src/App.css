@@ -124,6 +124,13 @@ span {
     display: flex;
     align-items: center;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
 /* 共通レイアウト end */
 
 /* テーブルレイアウト start */
