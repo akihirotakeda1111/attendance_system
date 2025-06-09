@@ -25,7 +25,7 @@ public class BreaktimeManagementController {
     @PostMapping
     public ResponseEntity<String> recordBreaktimes(@RequestBody List<BreaktimeRequest> requests) {
         breaktimeService.saveBreaktimes(requests);
-        return ResponseEntity.ok("休憩登録がされました");
+        return ResponseEntity.ok("休憩登録が完了しました");
     }
 
     @GetMapping

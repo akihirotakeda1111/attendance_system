@@ -26,13 +26,13 @@ public class AttendanceController {
     @PostMapping
     public ResponseEntity<String> recordStartAttendance(@RequestBody AttendanceRequest request) {
         attendanceService.saveStartAttendance(request);
-        return ResponseEntity.ok("出勤登録がされました");
+        return ResponseEntity.ok("出勤登録が完了しました");
     }
 
     @PutMapping
     public ResponseEntity<String> recordEndAttendance(@RequestBody AttendanceRequest request) {
         attendanceService.saveEndAttendance(request);
-        return ResponseEntity.ok("退勤登録がされました");
+        return ResponseEntity.ok("退勤登録が完了しました");
     }
 
     @GetMapping("/latest")

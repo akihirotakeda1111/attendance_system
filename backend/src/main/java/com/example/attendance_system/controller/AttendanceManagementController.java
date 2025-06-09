@@ -26,13 +26,13 @@ public class AttendanceManagementController {
     @PostMapping
     public ResponseEntity<String> recordAttendance(@RequestBody AttendanceRequest request) {
         attendanceService.saveAttendance(request);
-        return ResponseEntity.ok("出勤登録がされました");
+        return ResponseEntity.ok("出勤登録が完了しました");
     }
 
     @DeleteMapping
     public ResponseEntity<String> deleteAttendance(@RequestBody AttendanceRequest request) {
         attendanceService.deleteAttendance(request);
-        return ResponseEntity.ok("出退勤削除がされました");
+        return ResponseEntity.ok("出退勤削除が完了しました");
     }
 
     @GetMapping

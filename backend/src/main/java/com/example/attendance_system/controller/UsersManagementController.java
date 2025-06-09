@@ -24,13 +24,13 @@ public class UsersManagementController {
     @PostMapping
     public ResponseEntity<String> recordUser(@RequestBody UsersRequest request) {
         usersService.saveUser(request);
-        return ResponseEntity.ok("従業員登録がされました");
+        return ResponseEntity.ok("従業員登録が完了しました");
     }
 
     @DeleteMapping
     public ResponseEntity<String> deleteUser(@RequestBody UsersRequest request) {
         usersService.deleteUser(request);
-        return ResponseEntity.ok("従業員削除がされました");
+        return ResponseEntity.ok("従業員削除が完了しました");
     }
 
     @GetMapping

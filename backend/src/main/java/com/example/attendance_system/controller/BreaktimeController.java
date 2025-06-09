@@ -23,13 +23,13 @@ public class BreaktimeController {
     @PostMapping
     public ResponseEntity<String> recordStartBreaktime(@RequestBody BreaktimeRequest request) {
         breaktimeService.saveStartBreaktime(request);
-        return ResponseEntity.ok("休憩開始登録がされました");
+        return ResponseEntity.ok("休憩開始登録が完了しました");
     }
 
     @PutMapping
     public ResponseEntity<String> recordEndBreaktime(@RequestBody BreaktimeRequest request) {
         breaktimeService.saveEndBreaktime(request);
-        return ResponseEntity.ok("休憩終了登録がされました");
+        return ResponseEntity.ok("休憩終了登録が完了しました");
     }
 
     @GetMapping("/latest")
