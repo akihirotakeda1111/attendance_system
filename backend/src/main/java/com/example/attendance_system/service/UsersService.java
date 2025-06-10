@@ -38,6 +38,24 @@ public class UsersService {
         }
     }
 
+    public void updateUser(UsersRequest request) {
+        try {
+            Users user = usersRepository.findById(request.getId()).orElse(null);
+            if (user != null) {
+                String passwordHash = request.getPassword() != null ?
+                    SHA256Util.hash(request.getPassword()) : user.getPassword();
+                user.setId(request.getId());
+                user.setPassword(passwordHash);
+                user.setName(request.getName());
+                user.setEmail(request.getEmail());
+                user.setRole(request.getRole());
+                usersRepository.save(user);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void deleteUser(UsersRequest request) {
         try {

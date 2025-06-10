@@ -14,6 +14,7 @@ const UsersRegister = ({ selectedId, handleClose, stateHandlers }) => {
   const [userId, setUserId] = useState(getUserIdFromToken());
   const [id, setId] = useState(selectedId ? selectedId : "");
   const [password, setPassword] = useState("");
+  const [isChangePassword, setChangePassword] = useState(selectedId ? false : true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("00");
@@ -44,7 +45,7 @@ const UsersRegister = ({ selectedId, handleClose, stateHandlers }) => {
       }
       const data = await reaponse.json();
       setId(data.id);
-      setPassword(data.password);
+      setPassword("");
       setName(data.name);
       setEmail(data.email);
       setRole(data.role);
@@ -79,12 +80,12 @@ const UsersRegister = ({ selectedId, handleClose, stateHandlers }) => {
 
       // 登録処理
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
-        method: "POST",
+        method: !selectedId ? "POST" : "PUT",
         headers: { "Content-Type": "application/json",
             "Authorization": `Bearer ${authToken}` },
         body: JSON.stringify({
           id: id,
-          password: password,
+          password: isChangePassword ? password : null,
           name: name,
           email: email,
           role: role,
@@ -142,13 +143,15 @@ const UsersRegister = ({ selectedId, handleClose, stateHandlers }) => {
       errorMessages.push(<Message type="isHalfWidthNumberAndAlpha" item1={itemName} />);
     }
 
-    itemName = "パスワード";
-    if (!password) {
-      errorMessages.push(<Message type="isRiquired" item1={itemName} />);
-    } else if (password.length > inputMaxLength.password) {
-      errorMessages.push(<Message type="isOverLength" item1={itemName} item2={inputMaxLength.password} />);
-    } else if (!isPassword(password)) {
-      errorMessages.push(<Message type="isPassword" item1={itemName} />);
+    if (isChangePassword) {
+      itemName = "パスワード";
+      if (!password) {
+        errorMessages.push(<Message type="isRiquired" item1={itemName} />);
+      } else if (password.length > inputMaxLength.password) {
+        errorMessages.push(<Message type="isOverLength" item1={itemName} item2={inputMaxLength.password} />);
+      } else if (!isPassword(password)) {
+        errorMessages.push(<Message type="isPassword" item1={itemName} />);
+      }
     }
 
     itemName = "氏名";
@@ -198,20 +201,34 @@ const UsersRegister = ({ selectedId, handleClose, stateHandlers }) => {
                 />
               )}
             </td>
-            <th>パスワード</th>
+            <th>
+              パスワード
+              <div>
+                {selectedId ? (
+                  <>
+                    <label htmlFor="changeChk">変更する</label>
+                    <input id="changeChk" type="checkbox"
+                      checked={isChangePassword}
+                      onChange={() => setChangePassword(!isChangePassword)}/>
+                  </>
+                ) : null}
+              </div>
+            </th>
             <td>
-              <input
-                type="password"
-                placeholder="半角英数字と記号で入力"
-                value={password}
-                maxLength={inputMaxLength.password}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (isPassword(value) || value === "") {
-                    setPassword(value);
-                  }
-                }}
-              />
+              {isChangePassword ? (
+                <input
+                  type="password"
+                  placeholder="半角英数字と記号で入力"
+                  value={password}
+                  maxLength={inputMaxLength.password}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (isPassword(value) || value === "") {
+                      setPassword(value);
+                    }
+                  }}
+                />
+              ) : "*****"}
             </td>
           </tr>
           <tr>
