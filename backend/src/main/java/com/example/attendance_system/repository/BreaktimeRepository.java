@@ -9,6 +9,8 @@ import java.util.Optional;
 
 import com.example.attendance_system.model.Breaktime;
 import com.example.attendance_system.model.BreaktimeId;
+import java.time.LocalDateTime;
+
 
 @Repository
 public interface BreaktimeRepository extends JpaRepository<Breaktime, BreaktimeId> {
@@ -24,6 +26,9 @@ public interface BreaktimeRepository extends JpaRepository<Breaktime, BreaktimeI
 
     // 指定されたユーザー、期間の休憩情報を取得
     List<Breaktime> findByUserIdAndDateBetween(String userId, LocalDate startDate, LocalDate endDate);
+
+    // 指定された終了予定時刻の休憩情報を取得
+    List<Breaktime> findByExpectedEndTimeBetween(LocalDateTime start, LocalDateTime end);
 
     // 指定されたユーザーの最新の休憩情報を取得
     Optional<Breaktime> findTopByUserIdOrderByDateDesc(String userId);
