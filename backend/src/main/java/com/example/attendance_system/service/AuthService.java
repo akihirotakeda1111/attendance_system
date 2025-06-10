@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.attendance_system.repository.UsersRepository;
 import com.example.attendance_system.config.JwtUtil;
+import com.example.attendance_system.config.SHA256Util;
 import com.example.attendance_system.exception.AuthenticationException;
 import com.example.attendance_system.model.Users;
 
@@ -21,7 +22,8 @@ public class AuthService {
                 throw new AuthenticationException("not found user: " + id);
             }
 
-            if (!user.getPassword().equals(password)) {
+            String passwordHash = SHA256Util.hash(password);
+            if (!user.getPassword().equals(passwordHash)) {
                 throw new AuthenticationException("password is incorrect for user: " + id);
             }
 
