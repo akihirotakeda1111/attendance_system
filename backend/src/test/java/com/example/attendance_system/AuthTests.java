@@ -47,5 +47,17 @@ class AuthTests {
         response = restTemplate.postForEntity(url, params, Object.class);
         assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
+
+        params.put("id", null);
+        params.put("password", null);
+        response = restTemplate.postForEntity(url, params, Object.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("id", "admin");
+        params.put("password", null);
+        response = restTemplate.postForEntity(url, params, Object.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
 	}
 }
