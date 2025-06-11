@@ -2,13 +2,14 @@ package com.example.attendance_system.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.attendance_system.repository.BreaktimeRepository;
-
+import com.example.attendance_system.repository.UsersRepository;
 import com.example.attendance_system.dto.BreaktimeRequest;
+import com.example.attendance_system.exception.NotFoundException;
 import com.example.attendance_system.exception.ValidationException;
 import com.example.attendance_system.model.Breaktime;
+import com.example.attendance_system.model.Users;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -21,8 +22,14 @@ import java.util.stream.Collectors;
 @Service
 public class BreaktimeService {
 
-    @Autowired
-    private BreaktimeRepository breaktimeRepository;
+    private final BreaktimeRepository breaktimeRepository;
+    private final UsersRepository usersRepository;
+
+    public BreaktimeService(BreaktimeRepository breaktimeRepository,
+            UsersRepository usersRepository) {
+        this.breaktimeRepository = breaktimeRepository;
+        this.usersRepository = usersRepository;
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public void saveBreaktimes(List<BreaktimeRequest> requests) {
@@ -81,6 +88,11 @@ public class BreaktimeService {
 
     public void saveStartBreaktime(BreaktimeRequest request) {
         try {
+            Users user = usersRepository.findById(request.getUserId()).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getUserId());
+            }
+
             LocalDate ymd = LocalDate.parse(request.getDate());
             LocalDateTime ymdhms = LocalDateTime.now();
             int number = breaktimeRepository
@@ -90,6 +102,8 @@ public class BreaktimeService {
             LocalDateTime expectedEndTime = ymdhms.plusMinutes(request.getMinute());
             Breaktime breaktime = new Breaktime(ymd, request.getUserId(), number, ymdhms, null, expectedEndTime);
             breaktimeRepository.save(breaktime);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeException e) {
             throw new ValidationException(e.getMessage());
         } catch (Exception e) {
@@ -99,16 +113,25 @@ public class BreaktimeService {
 
     public void saveEndBreaktime(BreaktimeRequest request) {
         try {
+            Users user = usersRepository.findById(request.getUserId()).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getUserId());
+            }
+
             LocalDate ymd = LocalDate.parse(request.getDate());
             Breaktime latestBreaktime = breaktimeRepository
                     .findTopByUserIdAndDateOrderByNumberDesc(request.getUserId(), ymd)
                     .orElse(null);
-            if (latestBreaktime != null) {
-                LocalDateTime ymdhms = LocalDateTime.now();
-                latestBreaktime.setEndTime(ymdhms);
-                latestBreaktime.setExpectedEndTime(null);
-                breaktimeRepository.save(latestBreaktime);
+            if (latestBreaktime == null) {
+                throw new NotFoundException("not found breaktime: " + request.getUserId());
             }
+
+            LocalDateTime ymdhms = LocalDateTime.now();
+            latestBreaktime.setEndTime(ymdhms);
+            latestBreaktime.setExpectedEndTime(null);
+            breaktimeRepository.save(latestBreaktime);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeParseException e) {
             throw new ValidationException(e.getMessage());
         } catch (Exception e) {

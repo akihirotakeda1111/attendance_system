@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.attendance_system.service.BreaktimeService;
 import com.example.attendance_system.dto.BreaktimeRequest;
+import com.example.attendance_system.exception.ValidationException;
 import com.example.attendance_system.model.Breaktime;
 
 @RestController
@@ -22,12 +23,26 @@ public class BreaktimeController {
 
     @PostMapping
     public ResponseEntity<String> recordStartBreaktime(@RequestBody BreaktimeRequest request) {
+        if (request.getUserId() == null) {
+            throw new ValidationException("userId is null");
+        }
+        if (request.getDate() == null) {
+            throw new ValidationException("date is null");
+        }
+
         breaktimeService.saveStartBreaktime(request);
         return ResponseEntity.ok("休憩開始登録が完了しました");
     }
 
     @PutMapping
     public ResponseEntity<String> recordEndBreaktime(@RequestBody BreaktimeRequest request) {
+        if (request.getUserId() == null) {
+            throw new ValidationException("userId is null");
+        }
+        if (request.getDate() == null) {
+            throw new ValidationException("date is null");
+        }
+
         breaktimeService.saveEndBreaktime(request);
         return ResponseEntity.ok("休憩終了登録が完了しました");
     }

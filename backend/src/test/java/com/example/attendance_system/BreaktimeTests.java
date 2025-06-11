@@ -29,23 +29,53 @@ class BreaktimeTests {
 		ResponseEntity<String> response;
 		Map<String, Object> params = new HashMap<>();
 
-		params.put("userId", "admin");
+		params.put("userId", "testUser");
 		params.put("date", "2025-04-01");
 		params.put("minute", "100");
 		response = restTemplate.postForEntity(url, params, String.class);
 		assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
 		System.out.println(response.getBody());
 
+		params.put("userId", "aaa");
+		params.put("date", "2025-04-01");
+		params.put("minute", "100");
+		response = restTemplate.postForEntity(url, params, String.class);
+		assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+		System.out.println(response.getBody());
+
+		params.put("userId", null);
+		params.put("date", "2025-04-01");
+		params.put("minute", "100");
+		response = restTemplate.postForEntity(url, params, String.class);
+		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+		System.out.println(response.getBody());
+
+		params.put("userId", "testUser");
 		params.put("date", "202504-01");
 		params.put("minute", "100");
 		response = restTemplate.postForEntity(url, params, String.class);
 		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
 		System.out.println(response.getBody());
 
+		params.put("userId", "testUser");
+		params.put("date", null);
+		params.put("minute", "100");
+		response = restTemplate.postForEntity(url, params, String.class);
+		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+		System.out.println(response.getBody());
+
+		params.put("userId", "testUser");
 		params.put("date", "2025-04-01");
 		params.put("minute", "a");
 		response = restTemplate.postForEntity(url, params, String.class);
 		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+		System.out.println(response.getBody());
+
+		params.put("userId", "testUser");
+		params.put("date", "2025-04-01");
+		params.put("minute", null);
+		response = restTemplate.postForEntity(url, params, String.class);
+		assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
 		System.out.println(response.getBody());
 	}
 
@@ -55,7 +85,7 @@ class BreaktimeTests {
 		Map<String, Object> params = new HashMap<>();
 		ResponseEntity<Attendance> response;
 
-		params.put("userId", "admin");
+		params.put("userId", "testUser");
 		params.put("date", "2025-04-01");
 		response = restTemplate.getForEntity(url, Attendance.class, params);
 		assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
@@ -79,7 +109,7 @@ class BreaktimeTests {
 		HttpEntity<Object> requestEntity;
 		ResponseEntity<String> response;
 
-		params.put("userId", "admin");
+		params.put("userId", "testUser");
 		params.put("date", "2025-04-01");
 		restTemplate.put(url, params);
 		requestEntity = new HttpEntity<>(params);
@@ -92,7 +122,47 @@ class BreaktimeTests {
 		assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
 		System.out.println(response.getBody());
 
+		params.put("userId", "aaa");
+		params.put("date", "2025-04-01");
+		restTemplate.put(url, params);
+		requestEntity = new HttpEntity<>(params);
+		response = restTemplate.exchange(
+				url,
+				HttpMethod.PUT,
+				requestEntity,
+				String.class
+		);
+		assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+		System.out.println(response.getBody());
+
+		params.put("userId", null);
+		params.put("date", "2025-04-01");
+		restTemplate.put(url, params);
+		requestEntity = new HttpEntity<>(params);
+		response = restTemplate.exchange(
+				url,
+				HttpMethod.PUT,
+				requestEntity,
+				String.class
+		);
+		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+		System.out.println(response.getBody());
+
+		params.put("userId", "testUser");
 		params.put("date", "202504-01");
+		restTemplate.put(url, params);
+		requestEntity = new HttpEntity<>(params);
+		response = restTemplate.exchange(
+				url,
+				HttpMethod.PUT,
+				requestEntity,
+				String.class
+		);
+		assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+		System.out.println(response.getBody());
+
+		params.put("userId", "testUser");
+		params.put("date", null);
 		restTemplate.put(url, params);
 		requestEntity = new HttpEntity<>(params);
 		response = restTemplate.exchange(
