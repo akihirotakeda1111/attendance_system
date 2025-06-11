@@ -106,6 +106,7 @@ public class BreaktimeService {
             if (latestBreaktime != null) {
                 LocalDateTime ymdhms = LocalDateTime.now();
                 latestBreaktime.setEndTime(ymdhms);
+                latestBreaktime.setExpectedEndTime(null);
                 breaktimeRepository.save(latestBreaktime);
             }
         } catch (DateTimeParseException e) {
