@@ -44,7 +44,6 @@ public class UsersService {
             if (user != null) {
                 String passwordHash = request.getPassword() != null ?
                     SHA256Util.hash(request.getPassword()) : user.getPassword();
-                user.setId(request.getId());
                 user.setPassword(passwordHash);
                 user.setName(request.getName());
                 user.setEmail(request.getEmail());
