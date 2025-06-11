@@ -52,6 +52,30 @@ public class AttendanceService {
         
     }
 
+    public void updateAttendance(AttendanceRequest request) {
+        try {
+            LocalDate date = LocalDate.parse(request.getDate());
+            AttendanceId attendanceId = new AttendanceId(date, request.getUserId());
+            Attendance attendance = attendanceRepository.findById(attendanceId).orElse(null);
+            if (attendance != null) {
+                LocalDateTime startTime = LocalDateTime.parse(request.getStartTime());
+                LocalDateTime endTime = LocalDateTime.parse(request.getEndTime());
+                if (!endTime.isAfter(startTime)) {
+                    throw new ValidationException("End time(" + endTime.toString() + ") cannot be before start time(" + startTime.toString() + ") .");
+                }
+
+                attendance.setStartTime(startTime);
+                attendance.setEndTime(endTime);
+                attendanceRepository.save(attendance);
+            }
+        } catch (DateTimeParseException
+            | ValidationException e) {
+            throw new ValidationException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
     public void saveStartAttendance(AttendanceRequest request) {
         try {
             Users user = usersRepository.findById(request.getUserId()).orElse(null);

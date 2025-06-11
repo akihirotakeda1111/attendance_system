@@ -125,6 +125,7 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, stateHandlers }
   const [attendanceEndDate, setAttendanceEndDate] = useState(new DateValue(now));
   const [breaktimes, setBreaktimes] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isNewData, setNewData] = useState(true);
 
   // 入力項目の既存データ取得イベント
   const getInputData = async () => {
@@ -153,6 +154,7 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, stateHandlers }
       setAttendanceStartDate(new DateValue(new Date(attendanceData.startTime)))
       setAttendanceEndDate(new DateValue(
         attendanceData.endTime ? new Date(attendanceData.endTime) : new Date(now)))
+      setNewData(false);
 
       const responseBreaktime = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/manage/breaktime/date?${params.toString()}`, {
@@ -191,7 +193,7 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, stateHandlers }
     try {
       setIsLoading(true);
       const attendansResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/attendance`, {
-        method: "POST",
+        method: isNewData ? "POST" : "PUT",
         headers: { "Content-Type": "application/json",
             "Authorization": `Bearer ${authToken}` },
         body: JSON.stringify({

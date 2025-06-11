@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,12 @@ public class AttendanceManagementController {
     @PostMapping
     public ResponseEntity<String> recordAttendance(@RequestBody AttendanceRequest request) {
         attendanceService.saveAttendance(request);
+        return ResponseEntity.ok("出勤登録が完了しました");
+    }
+
+    @PutMapping
+    public ResponseEntity<String> updateAttendance(@RequestBody AttendanceRequest request) {
+        attendanceService.updateAttendance(request);
         return ResponseEntity.ok("出勤登録が完了しました");
     }
 
