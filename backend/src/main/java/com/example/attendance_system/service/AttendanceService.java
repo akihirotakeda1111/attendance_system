@@ -4,10 +4,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.attendance_system.repository.AttendanceRepository;
 import com.example.attendance_system.repository.BreaktimeRepository;
+import com.example.attendance_system.repository.UsersRepository;
 import com.example.attendance_system.dto.AttendanceRequest;
+import com.example.attendance_system.exception.NotFoundException;
 import com.example.attendance_system.exception.ValidationException;
 import com.example.attendance_system.model.Attendance;
 import com.example.attendance_system.model.AttendanceId;
+import com.example.attendance_system.model.Users;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,10 +22,14 @@ public class AttendanceService {
 
     private AttendanceRepository attendanceRepository;
     private BreaktimeRepository breaktimeRepository;
+    private UsersRepository usersRepository;
 
-    public AttendanceService(AttendanceRepository attendanceRepository, BreaktimeRepository breaktimeRepository) {
+    public AttendanceService(AttendanceRepository attendanceRepository,
+            BreaktimeRepository breaktimeRepository,
+            UsersRepository usersRepository) {
         this.attendanceRepository = attendanceRepository;
         this.breaktimeRepository = breaktimeRepository;
+        this.usersRepository = usersRepository;
     }
 
     public void saveAttendance(AttendanceRequest request) {
@@ -47,10 +54,17 @@ public class AttendanceService {
 
     public void saveStartAttendance(AttendanceRequest request) {
         try {
+            Users user = usersRepository.findById(request.getUserId()).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getUserId());
+            }
+
             LocalDate ymd = LocalDate.now();
             LocalDateTime ymdhms = LocalDateTime.now();
             Attendance attendance = new Attendance(ymd, request.getUserId(), ymdhms, null);
             attendanceRepository.save(attendance);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -58,14 +72,23 @@ public class AttendanceService {
 
     public void saveEndAttendance(AttendanceRequest request) {
         try {
+            Users user = usersRepository.findById(request.getUserId()).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getUserId());
+            }
+
             Attendance latestAttendance = attendanceRepository
                 .findTopByUserIdOrderByDateDesc(request.getUserId())
                 .orElse(null);
-            if (latestAttendance != null) {
-                LocalDateTime ymdhms = LocalDateTime.now();
-                latestAttendance.setEndTime(ymdhms);
-                attendanceRepository.save(latestAttendance);
+            if (latestAttendance == null) {
+                throw new NotFoundException("not found attendance: " + request.getUserId());
             }
+
+            LocalDateTime ymdhms = LocalDateTime.now();
+            latestAttendance.setEndTime(ymdhms);
+            attendanceRepository.save(latestAttendance);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.attendance_system.service.AttendanceService;
 import com.example.attendance_system.dto.AttendanceRequest;
+import com.example.attendance_system.exception.ValidationException;
 import com.example.attendance_system.model.Attendance;
 
 @RestController
@@ -25,12 +26,20 @@ public class AttendanceController {
 
     @PostMapping
     public ResponseEntity<String> recordStartAttendance(@RequestBody AttendanceRequest request) {
+        if (request.getUserId() == null) {
+            throw new ValidationException("userId is null");
+        }
+
         attendanceService.saveStartAttendance(request);
         return ResponseEntity.ok("出勤登録が完了しました");
     }
 
     @PutMapping
     public ResponseEntity<String> recordEndAttendance(@RequestBody AttendanceRequest request) {
+        if (request.getUserId() == null) {
+            throw new ValidationException("userId is null");
+        }
+        
         attendanceService.saveEndAttendance(request);
         return ResponseEntity.ok("退勤登録が完了しました");
     }

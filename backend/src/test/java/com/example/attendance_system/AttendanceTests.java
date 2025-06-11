@@ -26,10 +26,22 @@ class AttendanceTests {
 	void recordStartAttendance() {
         String url = "/api/attendance";
         Map<String, Object> params = new HashMap<>();
-        params.put("userId", "admin");
+        params.put("userId", "testUser");
 
         ResponseEntity<String> response = restTemplate.postForEntity(url, params, String.class);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params = new HashMap<>();
+        params.put("userId", "abc");
+        response = restTemplate.postForEntity(url, params, String.class);
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params = new HashMap<>();
+        params.put("userId", null);
+        response = restTemplate.postForEntity(url, params, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
 	}
 
@@ -39,7 +51,7 @@ class AttendanceTests {
         Map<String, Object> params = new HashMap<>();
         ResponseEntity<Attendance> response;
 
-        params.put("userId", "admin");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Attendance.class, params);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         System.out.println(response);
@@ -56,7 +68,7 @@ class AttendanceTests {
         Map<String, Object> params = new HashMap<>();
         ResponseEntity<Attendance> response;
 
-        params.put("userId", "admin");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Attendance.class, params);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         System.out.println(response);
@@ -74,7 +86,7 @@ class AttendanceTests {
         HttpEntity<Object> requestEntity;
         ResponseEntity<String> response;
 
-        params.put("userId", "admin");
+        params.put("userId", "testUser");
         restTemplate.put(url, params);
         requestEntity = new HttpEntity<>(params);
         response = restTemplate.exchange(
@@ -84,6 +96,32 @@ class AttendanceTests {
                 String.class
         );
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params = new HashMap<>();
+        params.put("userId", "abc");
+        restTemplate.put(url, params);
+        requestEntity = new HttpEntity<>(params);
+        response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                requestEntity,
+                String.class
+        );
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params = new HashMap<>();
+        params.put("userId", null);
+        restTemplate.put(url, params);
+        requestEntity = new HttpEntity<>(params);
+        response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                requestEntity,
+                String.class
+        );
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
 	}
 }
