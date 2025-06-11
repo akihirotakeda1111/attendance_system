@@ -241,7 +241,7 @@ const AttendanceManagement = ({stateHandlers}) => {
   useEffect(() => {
     try {
       setIsLoading(true);
-      fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
+      fetch(`${process.env.REACT_APP_API_BASE_URL}/manage/users`, {
           method: "GET",
           headers: {"Content-Type": "application/json",
             "Authorization": `Bearer ${authToken}`}
