@@ -3,11 +3,14 @@ package com.example.attendance_system.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.attendance_system.repository.AttendanceRepository;
 import com.example.attendance_system.repository.BreaktimeRepository;
 import com.example.attendance_system.repository.UsersRepository;
 import com.example.attendance_system.dto.BreaktimeRequest;
 import com.example.attendance_system.exception.NotFoundException;
 import com.example.attendance_system.exception.ValidationException;
+import com.example.attendance_system.model.Attendance;
+import com.example.attendance_system.model.AttendanceId;
 import com.example.attendance_system.model.Breaktime;
 import com.example.attendance_system.model.Users;
 
@@ -23,24 +26,36 @@ import java.util.stream.Collectors;
 public class BreaktimeService {
 
     private final BreaktimeRepository breaktimeRepository;
+    private final AttendanceRepository attendanceRepository;
     private final UsersRepository usersRepository;
 
     public BreaktimeService(BreaktimeRepository breaktimeRepository,
+            AttendanceRepository attendanceRepository,
             UsersRepository usersRepository) {
         this.breaktimeRepository = breaktimeRepository;
+        this.attendanceRepository = attendanceRepository;
         this.usersRepository = usersRepository;
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void saveBreaktimes(List<BreaktimeRequest> requests) {
         try {
+            // userId,dateでグループ化して休憩情報をdelete
             Map<Map.Entry<String, String>, List<BreaktimeRequest>> groupedIdAndDate = requests.stream()
                 .collect(Collectors.groupingBy(request -> Map.entry(request.getUserId(), request.getDate())));
             groupedIdAndDate.forEach((key, value) -> {
                 String userId = key.getKey();
                 String date = key.getValue();
+
+                Users user = usersRepository.findById(userId).orElse(null);
+                if (user == null) {
+                    throw new NotFoundException("not found user: " + userId);
+                }
+                
                 deleteBreaktimes(userId, date);
             });
+
+            // 休憩情報をinsert
             for (int i = 0; i < requests.size(); i++) {
                 if (requests.get(i).getStartTime() == null) {
                     continue;
@@ -48,6 +63,8 @@ public class BreaktimeService {
                 requests.get(i).setNumber(i+1);
                 saveBreaktime(requests.get(i));
             }
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (ValidationException e) {
             throw new ValidationException(e.getMessage());
         } catch (Exception e) {
@@ -58,6 +75,12 @@ public class BreaktimeService {
     public void saveBreaktime(BreaktimeRequest request) {
         try {
             LocalDate date = LocalDate.parse(request.getDate());
+            AttendanceId attendanceId = new AttendanceId(date, request.getUserId());
+            Attendance attendance = attendanceRepository.findById(attendanceId).orElse(null);
+            if (attendance == null) {
+                throw new NotFoundException("not found attendance: " + request.getUserId() + "," + date);
+            }
+
             LocalDateTime startTime = LocalDateTime.parse(request.getStartTime());
             LocalDateTime endTime = LocalDateTime.parse(request.getEndTime());
             LocalDateTime expectedEndTime = request.getExpectedEndTime() == null ? null : LocalDateTime.parse(request.getExpectedEndTime());
@@ -67,6 +90,8 @@ public class BreaktimeService {
 
             Breaktime breaktime = new Breaktime(date, request.getUserId(), request.getNumber(), startTime, endTime, expectedEndTime);
             breaktimeRepository.save(breaktime);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeParseException
             | ValidationException e) {
             throw new ValidationException(e.getMessage());
@@ -155,11 +180,18 @@ public class BreaktimeService {
 
     public List<Breaktime> getBreaktimeList(String year, String month, String userId) {
         try {
+            Users user = usersRepository.findById(userId).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + userId);
+            }
+
             LocalDate startDate = LocalDate.parse(
                     year + "-" + String.format("%02d", Integer.valueOf(month)) + "-01");
             LocalDate endDate = startDate.plusMonths(1).minusDays(1);
         
             return breaktimeRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeParseException
             | java.util.IllegalFormatException
             | NumberFormatException e) {
@@ -171,8 +203,15 @@ public class BreaktimeService {
     
     public List<Breaktime> getBreaktimeList(String date, String userId) {
         try {
+            Users user = usersRepository.findById(userId).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + userId);
+            }
+
             LocalDate parsedDate = LocalDate.parse(date);
             return breaktimeRepository.findByUserIdAndDate(userId, parsedDate);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeParseException e) {
             throw new ValidationException(e.getMessage());
         } catch (Exception e) {

@@ -32,47 +32,171 @@ class BreaktimeManagementTests {
 
         entry1 = new HashMap<>();
         entry1.put("date", "2025-04-01");
-        entry1.put("userId", "admin");
-        entry1.put("number", 1);
+        entry1.put("userId", "testUser");
         entry1.put("startTime", "2025-04-01T09:30:00");
         entry1.put("endTime", "2025-04-01T10:00:00");
         entry1.put("expectedEndTime", null);
-
         entry2 = new HashMap<>();
         entry2.put("date", "2025-04-01");
-        entry2.put("userId", "admin");
-        entry1.put("number", 2);
+        entry2.put("userId", "testUser");
         entry2.put("startTime", "2025-04-01T10:00:00");
         entry2.put("endTime", "2025-04-01T11:00:00");
         entry2.put("expectedEndTime", null);
-
+        requestData = new ArrayList<>();
         requestData.add(entry1);
         requestData.add(entry2);
-
         requestEntity = new HttpEntity<>(requestData);
         response = restTemplate.postForEntity(url, requestEntity, String.class);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
 
+        entry1 = new HashMap<>();
+        entry1.put("date", "2025-04-01");
+        entry1.put("userId", "aaa");
+        entry1.put("startTime", "2025-04-01T09:30:00");
+        entry1.put("endTime", "2025-04-01T10:00:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", "2025-04-01");
+        entry1.put("userId", null);
+        entry1.put("startTime", "2025-04-01T09:30:00");
+        entry1.put("endTime", "2025-04-01T10:00:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", "2030-04-01");
+        entry1.put("userId", "testUser");
+        entry1.put("startTime", "2025-04-01T09:30:00");
+        entry1.put("endTime", "2025-04-01T10:00:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", "2025-0401");
+        entry1.put("userId", "testUser");
+        entry1.put("startTime", "2025-04-01T09:30:00");
+        entry1.put("endTime", "2025-04-01T10:00:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", null);
+        entry1.put("userId", "testUser");
+        entry1.put("startTime", "2025-04-01T09:30:00");
+        entry1.put("endTime", "2025-04-01T10:00:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", "2025-04-01");
+        entry1.put("userId", "testUser");
+        entry1.put("startTime", "2025-0401T09:30:00");
+        entry1.put("endTime", "2025-04-01T10:00:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", "2025-04-01");
+        entry1.put("userId", "testUser");
+        entry1.put("startTime", null);
+        entry1.put("endTime", "2025-04-01T10:00:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", "2025-04-01");
+        entry1.put("userId", "testUser");
+        entry1.put("startTime", "2025-0401T09:30:00");
+        entry1.put("endTime", "2025-0401T10:00:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", "2025-04-01");
+        entry1.put("userId", "testUser");
+        entry1.put("startTime", "2025-0401T09:30:00");
+        entry1.put("endTime", null);
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        entry1 = new HashMap<>();
+        entry1.put("date", "2025-04-01");
+        entry1.put("userId", "testUser");
+        entry1.put("startTime", "2025-0401T09:30:00");
+        entry1.put("endTime", "2025-04-01T09:30:00");
+        entry1.put("expectedEndTime", null);
+        requestData = new ArrayList<>();
+        requestData.add(entry1);
+        requestEntity = new HttpEntity<>(requestData);
+        response = restTemplate.postForEntity(url, requestEntity, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
 		entry1 = new HashMap<>();
         entry1.put("date", "2025-04-01");
-        entry1.put("userId", "admin");
+        entry1.put("userId", "testUser");
         entry1.put("number", 1);
         entry1.put("startTime", "2025-04-01T12:00:00");
         entry1.put("endTime", "2025-04-01T13:00:00");
         entry1.put("expectedEndTime", null);
-
         entry2 = new HashMap<>();
         entry2.put("date", "2025-04-01");
-        entry2.put("userId", "admin");
+        entry2.put("userId", "testUser");
         entry1.put("number", 2);
-        entry2.put("startTime", "2025-04-01T13:00:00");
+        entry2.put("startTime", "2025-0401T13:00:00");
         entry2.put("endTime", "2025-04-0114:00:00");
         entry2.put("expectedEndTime", null);
-
+        requestData = new ArrayList<>();
         requestData.add(entry1);
         requestData.add(entry2);
-
         requestEntity = new HttpEntity<>(requestData);
         response = restTemplate.postForEntity(url, requestEntity, String.class);
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
@@ -86,26 +210,78 @@ class BreaktimeManagementTests {
         Map<String, Object> params = new HashMap<>();
 
         params.put("year", "2025");
-        params.put("month", "5");
-        params.put("userId", "admin");
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
 
         params.put("year", "2030");
         params.put("month", "5");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
 
-        params.put("year", "a");
-        params.put("month", "5");
+        params.put("year", "2025");
+        params.put("month", "4");
+        params.put("userId", "admin");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("year", "99999");
+        params.put("month", "4");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("year", "aaa");
+        params.put("month", "4");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("year", null);
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
 
         params.put("year", "2025");
         params.put("month", "13");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("year", "2025");
+        params.put("month", "aaa");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("year", "2025");
+        params.put("month", null);
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("year", "2025");
+        params.put("month", "4");
+        params.put("userId", "aaa");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("year", "2025");
+        params.put("month", "4");
+        params.put("userId", null);
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
