@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.attendance_system.service.AttendanceTotalizationService;
 import com.example.attendance_system.dto.AttendanceTotalizationResponse;
+import com.example.attendance_system.exception.ValidationException;
 import com.example.attendance_system.dto.AttendanceTotalizationRequest;
 import java.util.List;
 
@@ -22,9 +23,12 @@ public class AttendanceTotalizationController {
     public ResponseEntity<List<AttendanceTotalizationResponse>> getAttendanceTotalization(
             @RequestParam(name = "monthly") boolean monthly,
             @RequestParam(name = "weekly") boolean weekly,
-            @RequestParam(name = "year") String year,
-            @RequestParam(name = "month") String month,
-            @RequestParam(name = "userId") String userId) {
+            @RequestParam(name = "year", defaultValue = "") String year,
+            @RequestParam(name = "month", defaultValue = "") String month,
+            @RequestParam(name = "userId", defaultValue = "") String userId) {
+        if (userId.isEmpty()) { throw new ValidationException("userId is null"); }
+        if (year.isEmpty()) { throw new ValidationException("year is null"); }
+        if (weekly && month.isEmpty()) { throw new ValidationException("month is null");}
 
         AttendanceTotalizationRequest request = new AttendanceTotalizationRequest();
         request.setMonthly(monthly);

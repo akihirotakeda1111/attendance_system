@@ -27,8 +27,8 @@ class AttendanceTotalizationTests {
         params.put("monthly", true);
         params.put("weekly", false);
         params.put("year", "2025");
-        params.put("month", "5");
-        params.put("userId", "admin");
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
@@ -36,8 +36,8 @@ class AttendanceTotalizationTests {
         params.put("monthly", false);
         params.put("weekly", true);
         params.put("year", "2025");
-        params.put("month", "5");
-        params.put("userId", "admin");
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
@@ -45,8 +45,8 @@ class AttendanceTotalizationTests {
         params.put("monthly", false);
         params.put("weekly", false);
         params.put("year", "2025");
-        params.put("month", "5");
-        params.put("userId", "admin");
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
@@ -54,8 +54,8 @@ class AttendanceTotalizationTests {
         params.put("monthly", true);
         params.put("weekly", false);
         params.put("year", "2030");
-        params.put("month", "5");
-        params.put("userId", "admin");
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
@@ -63,8 +63,8 @@ class AttendanceTotalizationTests {
         params.put("monthly", false);
         params.put("weekly", true);
         params.put("year", "2030");
-        params.put("month", "5");
-        params.put("userId", "admin");
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
@@ -72,17 +72,53 @@ class AttendanceTotalizationTests {
         params.put("monthly", false);
         params.put("weekly", false);
         params.put("year", "2030");
-        params.put("month", "5");
-        params.put("userId", "admin");
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
 
+        params.put("monthly", true);
+        params.put("weekly", false);
+        params.put("year", "2025");
+        params.put("month", "4");
+        params.put("userId", "admin");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("monthly", false);
+        params.put("weekly", true);
+        params.put("year", null);
+        params.put("month", "4");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("monthly", true);
+        params.put("weekly", false);
+        params.put("year", null);
+        params.put("month", "4");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
         params.put("monthly", false);
         params.put("weekly", true);
         params.put("year", "aaaa");
-        params.put("month", "5");
-        params.put("userId", "admin");
+        params.put("month", "4");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("monthly", false);
+        params.put("weekly", true);
+        params.put("year", "99999");
+        params.put("month", "4");
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
@@ -90,26 +126,53 @@ class AttendanceTotalizationTests {
         params.put("monthly", false);
         params.put("weekly", true);
         params.put("year", "2025");
-        params.put("month", "aaaa");
-        params.put("userId", "admin");
+        params.put("month", null);
+        params.put("userId", "testUser");
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
 
-        params.put("monthly", false);
-        params.put("weekly", false);
-        params.put("year", "aaaa");
-        params.put("month", "5");
-        params.put("userId", "admin");
-        response = restTemplate.getForEntity(url, Object.class, params);
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
-        System.out.println(response.getBody());
-
-        params.put("monthly", false);
+        params.put("monthly", true);
         params.put("weekly", false);
         params.put("year", "2025");
+        params.put("month", null);
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+        
+        params.put("monthly", false);
+        params.put("weekly", true);
+        params.put("year", "2025");
         params.put("month", "aaaa");
-        params.put("userId", "admin");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("monthly", false);
+        params.put("weekly", true);
+        params.put("year", "2025");
+        params.put("month", "13");
+        params.put("userId", "testUser");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("monthly", false);
+        params.put("weekly", true);
+        params.put("year", "2025");
+        params.put("month", "4");
+        params.put("userId", "aaa");
+        response = restTemplate.getForEntity(url, Object.class, params);
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        System.out.println(response.getBody());
+
+        params.put("monthly", false);
+        params.put("weekly", true);
+        params.put("year", "2025");
+        params.put("month", "4");
+        params.put("userId", null);
         response = restTemplate.getForEntity(url, Object.class, params);
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         System.out.println(response.getBody());
