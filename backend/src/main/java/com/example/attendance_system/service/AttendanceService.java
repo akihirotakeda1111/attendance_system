@@ -34,6 +34,11 @@ public class AttendanceService {
 
     public void saveAttendance(AttendanceRequest request) {
         try {
+            Users user = usersRepository.findById(request.getUserId()).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getUserId());
+            }
+
             LocalDate date = LocalDate.parse(request.getDate());
             LocalDateTime startTime = LocalDateTime.parse(request.getStartTime());
             LocalDateTime endTime = LocalDateTime.parse(request.getEndTime());
@@ -43,6 +48,8 @@ public class AttendanceService {
 
             Attendance attendance = new Attendance(date, request.getUserId(), startTime, endTime);
             attendanceRepository.save(attendance);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeParseException
             | ValidationException e) {
             throw new ValidationException(e.getMessage());
@@ -54,20 +61,28 @@ public class AttendanceService {
 
     public void updateAttendance(AttendanceRequest request) {
         try {
+            Users user = usersRepository.findById(request.getUserId()).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getUserId());
+            }
+
             LocalDate date = LocalDate.parse(request.getDate());
             AttendanceId attendanceId = new AttendanceId(date, request.getUserId());
             Attendance attendance = attendanceRepository.findById(attendanceId).orElse(null);
-            if (attendance != null) {
-                LocalDateTime startTime = LocalDateTime.parse(request.getStartTime());
-                LocalDateTime endTime = LocalDateTime.parse(request.getEndTime());
-                if (!endTime.isAfter(startTime)) {
-                    throw new ValidationException("End time(" + endTime.toString() + ") cannot be before start time(" + startTime.toString() + ") .");
-                }
-
-                attendance.setStartTime(startTime);
-                attendance.setEndTime(endTime);
-                attendanceRepository.save(attendance);
+            if (attendance == null) {
+                throw new NotFoundException("not found attendance: " + request.getUserId() + "," + request.getDate());
             }
+            LocalDateTime startTime = LocalDateTime.parse(request.getStartTime());
+            LocalDateTime endTime = LocalDateTime.parse(request.getEndTime());
+            if (!endTime.isAfter(startTime)) {
+                throw new ValidationException("End time(" + endTime.toString() + ") cannot be before start time(" + startTime.toString() + ") .");
+            }
+
+            attendance.setStartTime(startTime);
+            attendance.setEndTime(endTime);
+            attendanceRepository.save(attendance);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeParseException
             | ValidationException e) {
             throw new ValidationException(e.getMessage());
@@ -121,10 +136,23 @@ public class AttendanceService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteAttendance(AttendanceRequest request) {
         try {
+            Users user = usersRepository.findById(request.getUserId()).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getUserId());
+            }
+
             String deleteId = request.getUserId();
             LocalDate deleteDate = LocalDate.parse(request.getDate());
+            AttendanceId attendanceId = new AttendanceId(deleteDate, deleteId);
+            Attendance attendance = attendanceRepository.findById(attendanceId).orElse(null);
+            if (attendance == null) {
+                throw new NotFoundException("not found attendance: " + deleteId + "," + deleteDate);
+            }
+
             attendanceRepository.deleteByUserIdAndDate(deleteId, deleteDate);
             breaktimeRepository.deleteByUserIdAndDate(deleteId, deleteDate);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeParseException e) {
             throw new ValidationException(e.getMessage());
         } catch (Exception e) {
@@ -158,11 +186,18 @@ public class AttendanceService {
 
     public List<Attendance> getAttendanceList(String year, String month, String userId) {
         try {
+            Users user = usersRepository.findById(userId).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + userId);
+            }
+
             LocalDate startDate = LocalDate.parse(
                     year + "-" + String.format("%02d", Integer.valueOf(month)) + "-01");
             LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
             return attendanceRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (DateTimeParseException
             | java.util.IllegalFormatException
             | NumberFormatException e) {
