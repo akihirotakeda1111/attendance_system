@@ -9,6 +9,8 @@ import com.example.attendance_system.repository.MasterRepository;
 import com.example.attendance_system.repository.UsersRepository;
 import com.example.attendance_system.config.SHA256Util;
 import com.example.attendance_system.dto.UsersRequest;
+import com.example.attendance_system.exception.NotFoundException;
+import com.example.attendance_system.exception.ValidationException;
 import com.example.attendance_system.model.Master;
 import com.example.attendance_system.model.Users;
 
@@ -29,10 +31,17 @@ public class UsersService {
 
     public void saveUser(UsersRequest request) {
         try {
+            Users user = usersRepository.findById(request.getId()).orElse(null);
+            if (user != null) {
+                throw new ValidationException("exist user: " + request.getId());
+            }
+
             String passwordHash = SHA256Util.hash(request.getPassword());
             Users users = new Users(request.getId(), passwordHash, request.getName()
                 , request.getEmail(), request.getRole());
             usersRepository.save(users);
+        } catch (ValidationException e) {
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -41,15 +50,19 @@ public class UsersService {
     public void updateUser(UsersRequest request) {
         try {
             Users user = usersRepository.findById(request.getId()).orElse(null);
-            if (user != null) {
-                String passwordHash = request.getPassword() != null ?
-                    SHA256Util.hash(request.getPassword()) : user.getPassword();
-                user.setPassword(passwordHash);
-                user.setName(request.getName());
-                user.setEmail(request.getEmail());
-                user.setRole(request.getRole());
-                usersRepository.save(user);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getId());
             }
+
+            String passwordHash = request.getPassword().isEmpty() ?
+                user.getPassword() : SHA256Util.hash(request.getPassword());
+            user.setPassword(passwordHash);
+            user.setName(request.getName());
+            user.setEmail(request.getEmail());
+            user.setRole(request.getRole());
+            usersRepository.save(user);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -58,8 +71,15 @@ public class UsersService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteUser(UsersRequest request) {
         try {
+            Users user = usersRepository.findById(request.getId()).orElse(null);
+            if (user == null) {
+                throw new NotFoundException("not found user: " + request.getId());
+            }
+
             String deleteId = request.getId();
             usersRepository.deleteById(deleteId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
