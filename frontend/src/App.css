@@ -181,6 +181,11 @@ span {
   justify-content: flex-end;
   margin-bottom: 10px;
 }
+
+.email-cell {
+  word-break: break-all;
+}
+
 /* テーブルレイアウト end */
 
 /* ボタンレイアウト start */

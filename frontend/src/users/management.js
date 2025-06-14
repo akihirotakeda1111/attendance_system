@@ -127,7 +127,7 @@ const UsersManagement = ({stateHandlers}) => {
       <tr key={index}>
         <td className="center">{data.id}</td>
         <td className="center">{data.name}</td>
-        <td className="center">{data.email}</td>
+        <td className="center email-cell">{data.email}</td>
         <td className="center">{data.role}</td>
         <td className="center">
           <RegistButton
