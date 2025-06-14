@@ -313,9 +313,11 @@ const Attendance = ({stateHandlers}) => {
               <td>
                 <div>開始時刻:{latestBreaktime == null ? "" : toYMDHMS(latestBreaktime.startTime)}</div>
               </td>
-              <td>
-                <div>終了予定時刻:{latestBreaktime == null ? "" : toYMDHMS(latestBreaktime.expectedEndTime)}</div>
-              </td>
+              {latestBreaktime.expectedEndTime && (
+                <td>
+                  <div>終了予定時刻:{latestBreaktime == null ? "" : toYMDHMS(latestBreaktime.expectedEndTime)}</div>
+                </td>
+              )}
             </tr>
           )}
           <tr>

@@ -124,7 +124,7 @@ public class BreaktimeService {
                     .findTopByUserIdAndDateOrderByNumberDesc(request.getUserId(), ymd)
                     .map(b -> b.getNumber() + 1)
                     .orElse(1);
-            LocalDateTime expectedEndTime = ymdhms.plusMinutes(request.getMinute());
+            LocalDateTime expectedEndTime = request.getMinute() == 0 ? null : ymdhms.plusMinutes(request.getMinute());
             Breaktime breaktime = new Breaktime(ymd, request.getUserId(), number, ymdhms, null, expectedEndTime);
             breaktimeRepository.save(breaktime);
         } catch (NotFoundException e) {
