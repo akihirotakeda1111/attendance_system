@@ -176,7 +176,7 @@ const UsersRegister = ({ selectedId, handleClose, stateHandlers }) => {
     }
 
     setErrorMessage(errorMessages);
-  }, [id, password, name, email, role]);
+  }, [id, password, name, email, role, isChangePassword]);
 
   return (
     <div>

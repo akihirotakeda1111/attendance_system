@@ -106,7 +106,7 @@ export function isPassword(str) {
 
 // メールアドレスの形式か判定する
 export function isEmailaddress(str) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+    return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(str);
 }
 
 // 2つの期間が完全に重なっているか判定する

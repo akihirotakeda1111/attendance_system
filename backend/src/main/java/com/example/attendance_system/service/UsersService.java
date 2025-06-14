@@ -54,7 +54,7 @@ public class UsersService {
                 throw new NotFoundException("not found user: " + request.getId());
             }
 
-            String passwordHash = request.getPassword().isEmpty() ?
+            String passwordHash = (request.getPassword() == null || request.getPassword().isEmpty()) ?
                 user.getPassword() : SHA256Util.hash(request.getPassword());
             user.setPassword(passwordHash);
             user.setName(request.getName());
