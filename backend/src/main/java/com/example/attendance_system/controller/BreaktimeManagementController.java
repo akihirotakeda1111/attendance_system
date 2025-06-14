@@ -28,8 +28,6 @@ public class BreaktimeManagementController {
         requests.forEach((request) -> {
             if (request.getUserId() == null) { throw new ValidationException("userId is null"); }
             if (request.getDate() == null) { throw new ValidationException("date is null"); }
-            if (request.getStartTime() == null) { throw new ValidationException("startTime is null"); }
-            if (request.getEndTime() == null) { throw new ValidationException("endTime is null"); }
         });
 
         breaktimeService.saveBreaktimes(requests);
