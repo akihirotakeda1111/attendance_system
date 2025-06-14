@@ -138,8 +138,8 @@ export function isPartOverlappingPeriod(start1, end1, start2, end2) {
   const endDate2 = isISOTimeStr(end2) ? new Date(end2) : null;
 
   if (startDate1 && endDate1 && startDate2 && endDate2) {
-    if ((startDate1 >= startDate2 && startDate1 <= endDate2)
-        || (endDate1 >= startDate2 && endDate1 <= endDate2)
+    if ((startDate1 > startDate2 && startDate1 < endDate2)
+        || (endDate1 > startDate2 && endDate1 < endDate2)
     ) {
       isPartOverlappingPeriod = true;
     }
