@@ -204,7 +204,7 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, stateHandlers }
         }),
       });
       if (!attendansResponse.ok) {
-        const errorMessage = await attendansResponse.text();
+        const errorMessage = await attendansResponse.json();
         alert(`Error: ${errorMessage}`);
         return;
       }
@@ -236,7 +236,7 @@ const AttendanceRegister = ({ date, selectedUserId, handleClose, stateHandlers }
         body: JSON.stringify(breaktimeRequest),
       });
       if (!breaktimeResponse.ok) {
-        const errorMessage = await breaktimeResponse.text();
+        const errorMessage = await breaktimeResponse.json();
         alert(`Error: ${errorMessage}`);
         return;
       }

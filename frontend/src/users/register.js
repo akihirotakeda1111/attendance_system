@@ -92,7 +92,7 @@ const UsersRegister = ({ selectedId, handleClose, stateHandlers }) => {
         }),
       });
       if (!response.ok) {
-        const errorMessage = await response.text();
+        const errorMessage = await response.json();
         alert(`Error: ${errorMessage}`);
         return;
       }
